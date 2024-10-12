@@ -1,5 +1,7 @@
+import axios from 'axios';
+
 import React, { useState, useEffect } from 'react';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, View, Text, TextInput } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -14,6 +16,14 @@ const fetchMarkers = async() => {
     throw err;
   }
 }
+const markers = [
+  {
+    latlng: { latitude: 47.655334, longitude: -122.303520 },
+    title: "Example Party",
+    description: "Best party on the block"
+  }
+]
+
 export default function HomeScreen() {
 
   const [text, setText] = useState('');
@@ -39,16 +49,15 @@ export default function HomeScreen() {
           />
         ))}
       </MapView>
-          <View style={styles.overlay}>
-            <Ionicons name="search" size={24} color="black" />
-            <TextInput 
-              style={styles.input}
-              onChangeText={text => setText(text)}
-              value={text}
-              placeholder="Search"
-            />
-          </View>
-      </MapView>
+      <View style={styles.overlay}>
+        <Ionicons name="search" size={24} color="black" />
+        <TextInput 
+          style={styles.input}
+          onChangeText={text => setText(text)}
+          value={text}
+          placeholder="Search"
+        />
+      </View>
     </View>
   );
 }
