@@ -1,7 +1,12 @@
-import {Text} from 'react-native'
+import { View } from "react-native";
+import { Profile, LoginButton, LogoutButton } from "@/components/auth";
 
 export default function ProfileScreen() {
   return (
-    <Text>PROFILE</Text>
+    <View className="w-full h-full flex items-center justify-center">
+      <Profile></Profile>
+      <LoginButton></LoginButton>
+      <LogoutButton></LogoutButton>
+    </View>
   );
 }
