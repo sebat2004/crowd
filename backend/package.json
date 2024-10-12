@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.7.1",
+    "nodemon": "^3.1.7"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
