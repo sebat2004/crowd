@@ -18,17 +18,19 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
+          tabBarShowLabel: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'icon' : 'icon-outline'} color={color} />
+            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="create"
+        name="form"
         options={{
           title: 'Create',
+          tabBarShowLabel: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'icon' : 'icon-outline'} color={color} />
+            <TabBarIcon name={focused ? 'add-circle' : 'add-circle-outline'} color={color} />
           ),
         }}
       />
@@ -36,8 +38,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
+          tabBarShowLabel: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'icon' : 'icon-outline'} color={color} />
+            <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
           ),
         }}
       />
