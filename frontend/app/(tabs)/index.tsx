@@ -2,8 +2,9 @@ import axios from 'axios';
 
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 
 const API_URL = 'http://localhost:3000';
 
@@ -30,6 +31,11 @@ export default function HomeScreen() {
   useEffect(() => {
 
   })
+
+  const handleSearchPress = () => {
+    router.push('/search');
+  };
+
   return (
     <View className="flex-1">
       <MapView className="w-full h-full justify-center items-center"
@@ -48,16 +54,17 @@ export default function HomeScreen() {
             description={marker.description}
           />
         ))}
-        <View className="flex-row absolute top-[10%] w-4/5 h-[5%] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
-          <Ionicons name="search" size={18} color="black" />
-          <TextInput 
-            className="ml-1"
-            onChangeText={text => setText(text)}
-            value={text}
-            placeholder="Search"
-          />
-        </View>
-      </MapView>
+        </MapView>
+        <TouchableOpacity 
+          className="absolute top-[10%] w-full justify-center items-center"
+          onPress={handleSearchPress}
+          activeOpacity={1}
+        >
+          <View className="relative w-4/5 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
+            <Ionicons name="search" size={18} color="black" />
+            <Text className="ml-1 text-gray-400">Search</Text>
+          </View>
+        </TouchableOpacity>
       
     </View>
   );
