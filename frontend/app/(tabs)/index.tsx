@@ -2,34 +2,37 @@ import axios from 'axios';
 
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { View, TextInput } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const API_URL = 'http://localhost:3000';
 
-const fetchMarkers = async() => {
-  try {
-    const res = await axios.get(`${API_URL}/api/markers`)
-    return res.data;
-  } catch (err) {
-    console.error('Error fetching markers: ', err);
-    throw err;
-  }
-}
-const markers = [
-  {
-    latlng: { latitude: 47.655334, longitude: -122.303520 },
-    title: "Example Party",
-    description: "Best party on the block"
-  }
-]
-
 export default function HomeScreen() {
 
   const [text, setText] = useState('');
-  useEffect(() => {
+  const [markers, setMarkers] = useState([]);
 
-  })
+  useEffect(() => {
+    const getMarkers = async() => {
+      try {
+        const res = await axios.get(`${API_URL}/api/markers`)
+        setMarkers(res.data);
+      } catch (err) {
+        console.error('Error fetching markers: ', err);
+        throw err;
+      }
+    }
+    getMarkers();
+  }, []);
+
+  const markersTest = [
+    {
+      latlng: { latitude: 47.655334, longitude: -122.303520 },
+      title: "Example Party",
+      description: "Best party on the block"
+    }
+  ]
+
   return (
     <View className="flex-1">
       <MapView className="w-full h-full justify-center items-center"
@@ -40,7 +43,7 @@ export default function HomeScreen() {
           longitudeDelta: 0.02,
         }}
       >
-        {markers.map((marker, index) => (
+        {markersTest.map((marker, index) => (
           <Marker
             key={index}
             coordinate={marker.latlng}
