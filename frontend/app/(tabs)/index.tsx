@@ -32,7 +32,7 @@ export default function HomeScreen() {
   })
   return (
     <View className="flex-1">
-      <MapView className="w-full h-full"
+      <MapView className="w-full h-full justify-center items-center"
         initialRegion={{
           latitude: 47.655334,
           longitude: -122.303520,
@@ -48,47 +48,17 @@ export default function HomeScreen() {
             description={marker.description}
           />
         ))}
+        <View className="flex-row absolute top-[10%] w-4/5 h-[5%] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
+          <Ionicons name="search" size={18} color="black" />
+          <TextInput 
+            className="ml-1"
+            onChangeText={text => setText(text)}
+            value={text}
+            placeholder="Search"
+          />
+        </View>
       </MapView>
-      <View style={styles.overlay}>
-        <Ionicons name="search" size={24} color="black" />
-        <TextInput 
-          style={styles.input}
-          onChangeText={text => setText(text)}
-          value={text}
-          placeholder="Search"
-        />
-      </View>
+      
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    top: '10%',
-    width: '80%',
-    height: '5%',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 50,
-    borderColor: '#D9D9D9',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    flexDirection: 'row',
-    padding: 10,
-  },
-  input: {
-    marginLeft: 5,
-  }
-});
