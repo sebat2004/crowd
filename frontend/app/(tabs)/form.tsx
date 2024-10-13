@@ -1,25 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  SafeAreaView,
-  TextInput,
-  Button,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, SafeAreaView, TextInput, Button, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import InputField from "@/components/form/InputField";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  runOnJS,
-} from "react-native-reanimated";
-
+import Animated, { useSharedValue, useAnimatedStyle, withTiming,withSpring } from "react-native-reanimated";
 
 //TODO: 
 //1. Add image upload 

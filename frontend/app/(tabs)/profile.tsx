@@ -5,7 +5,7 @@ import { useAuth0 } from "react-native-auth0";
 import { ProfilePicture } from "@/components/auth/ProfilePicture";
 
 export default function ProfileScreen() {
-  const { user, error } = useAuth0();
+  const { user  } = useAuth0();
   const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
@@ -16,7 +16,12 @@ export default function ProfileScreen() {
     <View className="w-full h-[85%] flex items-center justify-center mt-24 p-3">
       {user ? (
         <>
+          <View className="absolute right-8 top-px">
+            <LogoutButton />
+          </View>
+          
           <View className="flex gap-10">
+            
             {user && (
               <View className="w-[85%] flex-row justify-between items-center">
                 <View>
@@ -35,21 +40,6 @@ export default function ProfileScreen() {
               <View className="w-52 h-40 rounded-lg bg-white"></View>
             </View>
           </View>
-
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={toggleModal}
-          >
-            <TouchableWithoutFeedback onPress={toggleModal}>
-              <View className="flex-1 justify-start items-end">
-                <View className="mt-20 mr-4 bg-white rounded-lg shadow-md">
-                  <LogoutButton />
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </Modal>
         </>
       ):(
         <>
