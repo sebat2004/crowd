@@ -8,7 +8,7 @@ import QRCode from "qrcode";
 import dotenv from "dotenv";
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_SK)
+const stripe = new Stripe(process.env.STRIPE_SK);
 
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 // MongoDB connection
@@ -207,7 +207,7 @@ app.post("/payment-sheet", async (req, res) => {
   
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
-      { apiVersion: '2024-09-30.acacia' }
+      { apiVersion: "2024-09-30.acacia" }
     );
 
     const paymentIntent = await stripe.paymentIntents.create({

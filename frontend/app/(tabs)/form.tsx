@@ -1,42 +1,91 @@
-import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TextInput, Button, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import InputField from '@/components/form/InputField';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TextInput,
+  Button,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import InputField from "@/components/form/InputField";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  runOnJS,
+} from "react-native-reanimated";
+
+
+//TODO: 
+//1. Add image upload 
+//2. CheckBox thing (check this -> https://dribbble.com/shots/5042108-Car-Insurance-Quote) (look at top right, trying to get a nice little animation)
+//3. make submit button look cool 
+//4. nitpicky thing but get the datepicker in the right position. 
+
+const AnimatedView = Animated.createAnimatedComponent(View);
+
+//main transition for the renders 
+const StepContent = ({ children, step }) => {
+  const translateY = useSharedValue(50);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    // Reset animation values when step changes
+    translateY.value = 50;
+    opacity.value = 0;
+
+    // Start new animations
+    translateY.value = withSpring(0);
+    opacity.value = withTiming(1, { duration: 300 });
+  }, [step]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <AnimatedView style={[{ width: "100%" }, animatedStyle]}>
+      {children}
+    </AnimatedView>
+  );
+};
 
 export default function FormScreen() {
-  const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
+  const [step, setStep] = useState<number>(1);
+
+  //for datepicker component
+  const [mode, setMode] = useState<string>("date");
+  const [show, setShow] = useState<boolean>(false);
+
+  //all for the backend
+  const [name, setName] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [capacity, setCapacity] = useState<string>("");
+  const [coordinates, setCoordinates] = useState<Array<BigInt>>([0, 0]);
+  const [cost, setCost] = useState<string>("");
+  const [eventDate, setEventDate] = useState<Date>(new Date());
+  const [eventTime, setEventTime] = useState<Date>(new Date());
+  //somewhere here add the file thingy 
   
-  const [eventDate, setEventDate] = useState(new Date());
-  const [mode, setMode] = useState('date');
-  const [show, setShow] = useState(false); 
 
-  const [address, setAddress] = useState('');
-  const [description, setDescription] = useState('');
-  const [capacity, setCapacity] = useState('');
-  const [coordinates, setCoordinates] = useState([0, 0]);
-
-  const onChangeEventDate = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setShow(false);
+  const onChangeEventDate = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || eventDate;
     setEventDate(currentDate);
   };
 
-  const showMode = (currentMode) => {
-    setShow(true);
-    setMode(currentMode);
+  const onChangeEventTime = (event: any, selectedTime?: Date) => {
+    const currentTime = selectedTime || eventTime;
+    setEventTime(currentTime);
   };
 
-  const showDatepicker = () => {
-    showMode('date');
-  };
-
-  const showTimepicker = () => {
-    showMode('time');
-  };
-
-
+  //missing file handler 
   const handleSubmit = () => {
     const formData = {
       name,
@@ -45,92 +94,226 @@ export default function FormScreen() {
       description,
       capacity: parseInt(capacity, 10),
       coordinates,
+      cost: parseInt(cost, 10),
     };
 
-    console.log('Submitting form data:', formData);
+    console.log("Submitting form data:", formData);
 
-    fetch('http://localhost:3000/events', {
-      method: 'POST',
+    fetch("http://localhost:3000/events", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
     })
-      .then(response => response.json())
-      .then(data => console.log('Success:', data))
-      .catch(error => console.error('Error:', error));
+      .then((response) => response.json())
+      .then((data) => console.log("Success:", data))
+      .catch((error) => console.error("Error:", error));
   };
+
+  //so cursed but the native wind shit has not been working. 
+  const styles = StyleSheet.create({
+    container: {
+      marginBottom: 16,
+      width: '100%',
+      alignItems: 'center',
+    },
+    containerDate: {
+      marginBottom: 16,
+      width: '100%',
+      minWidth:'70%', 
+      paddingRight:20,
+      alignItems: 'left', //why is this launching an error but also working? 
+    },
+    title: {
+      fontSize: 24,
+      marginBottom: 8,
+    },
+    dateTimeContainer: {
+      flexDirection: 'row',
+      marginBottom: 16,
+      justifyContent: 'center',
+    },
+    input: {
+      height: 50,
+      fontSize: 24,
+      borderBottomWidth: 1,
+      borderBottomColor: '#ccc',
+      minWidth: '70%',
+    },
+    multilineInput: {
+      height: 100,
+      textAlignVertical: 'top',
+      borderBottomWidth:1,
+      minWidth:'70%',
+      paddingTop:8,
+      paddingBottom:8, 
+    },
+    buttonContainer: {
+      width: '100%',
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    button: {
+      width: 100,
+      height: 40,
+      backgroundColor: 'black',
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 16,
+    },
+  });
 
   const renderCurrentStep = () => {
     switch (step) {
       case 1:
         return (
-          <InputField
-            label="Event Name"
-            value={name}
-            onChangeText={setName}
-            onSubmitEditing={() => setStep(2)}
-          />
+          <StepContent step={step}>
+            <InputField
+              label="Event Name?"
+              value={name}
+              onChangeText={setName}
+              onSubmitEditing={() => setStep(2)}
+              style={styles.input}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                title="Next"
+                onPress={() => setStep(2)}
+              >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
         );
       case 2:
         return (
-          <View>
-            <Text className="text-2xl mb-2">Capacity</Text>
-            <TextInput
-              className="border-b border-gray-300 text-md mb-4"
+          <StepContent step={step}>
+            <InputField
+              label="Capacity"
               value={capacity}
               onChangeText={setCapacity}
               keyboardType="numeric"
+              style={styles.input}
             />
-            <Button title="Next" onPress={() => setStep(3)} />
-          </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                title="Next"
+                onPress={() => setStep(3)}
+              >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
         );
-      case 3:
-        return (
-          <View>
-            <Text className="text-2xl mb-2">Event Date and Time</Text>
-            <Button onPress={showDatepicker} title="Show date picker!" />
-            <Button onPress={showTimepicker} title="Show time picker!" />
-            <Text className="mt-2">Selected: {eventDate.toLocaleString()}</Text>
-           {show && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={eventDate}
-                mode={mode}
-                is24Hour={true}
-                onChange={onChangeEventDate}
-              />
-            )}
-            <Button title="Next" onPress={() => setStep(4)} />
-          </View>
-        );
+        case 3:
+  return (
+    <StepContent step={step}> 
+    <View style={styles.containerDate}>
+        <Text style={styles.title}>Event Date and Time</Text>
+        <View style={styles.dateTimeContainer}>
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={eventDate}
+            mode={"date"}
+            display="default"
+            onChange={onChangeEventDate}
+          />
+          <DateTimePicker
+            testID="timePicker"
+            value={eventTime}
+            mode={"time"}
+            is24Hour={true}
+            display="default"
+            onChange={onChangeEventTime}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setStep(4)}
+          >
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </StepContent>
+  );
       case 4:
         return (
-          <InputField
-            label="Address"
-            value={address}
-            onChangeText={setAddress}
-            onSubmitEditing={() => setStep(5)}
-          />
+          <StepContent step={step}>
+            <InputField
+              label="Address"
+              value={address}
+              onChangeText={setAddress}
+              onSubmitEditing={() => setStep(5)}
+              style={styles.input}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                title="Next"
+                onPress={() => setStep(5)}
+              >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
         );
       case 5:
         return (
-          <View className="mb-4">
-            <Text className="text-2xl">Description</Text>
-            <TextInput
-              className="border-b border-gray-300 text-md"
+          <StepContent step={step}>
+            <InputField
+              label="Description"
               value={description}
               onChangeText={setDescription}
-              keyboardType={'default'}
               multiline={true}
-              numberOfLines={3} // Adjust for multiline
-              style={{height: 80}}
+              style={styles.multilineInput}
             />
-            <Button title="Next" onPress={() => setStep(6)} />
-        </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                title="Next"
+                onPress={() => setStep(6)}
+              >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
         );
       case 6:
-        return <Button title="Submit" onPress={handleSubmit} />;
+        return (
+          <StepContent step={step}>
+            <InputField
+              label="Cost"
+              value={cost}
+              onChangeText={setCost}
+              keyboardType="numeric"
+              style={styles.input}
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} title="Next" onPress={() => setStep(7)} >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
+        );
+      case 7:
+        return (
+          <StepContent step={step}>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} title="Submit" onPress={handleSubmit} >
+                <Text style={styles.buttonText}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </StepContent>
+        );
       default:
         return null;
     }
@@ -138,15 +321,29 @@ export default function FormScreen() {
 
   return (
     <SafeAreaView className="flex-1">
-      <ScrollView>
-        <View className="p-4">
-          <View className="flex-row justify-between mb-4">
-            <Ionicons name="arrow-back" size={24} color="black" onPress={() => setStep(Math.max(1, step - 1))} />
-            <Ionicons name="checkbox-outline" size={24} color="black" />
-          </View>
-
-          <Text className="text-xl mb-4">Welcome! Create your event here!</Text>
-
+      <View className="flex-row mb-4 justify-between items-center">
+        <Ionicons
+          name="arrow-back"
+          size={24}
+          color="black"
+          onPress={() => setStep(Math.max(1, step - 1))}
+        />
+        <Ionicons
+          name={step === 7 ? "checkbox" : "checkbox-outline"}
+          size={24}
+          color="black"
+        />
+      </View>
+      <View className="flex justify-center items-center pb-10">
+        <Text className="text-xl mb-4">Welcome! Create your event here!</Text>
+      </View>
+      <ScrollView
+        contentContainerStyle={{
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <View className="flex items-center justify-center">
           {renderCurrentStep()}
         </View>
       </ScrollView>
