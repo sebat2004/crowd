@@ -1,4 +1,5 @@
-import { View, Button } from 'react-native';
+import React from 'react';
+import { View, Button, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useStripe } from '@stripe/stripe-react-native';
 
@@ -6,12 +7,17 @@ export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
 
+  const API_URL = "http://localhost:3000"
+
   const fetchPaymentSheetParams = async () => {
     const response = await fetch(`${API_URL}/payment-sheet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        customerId: null, // Send null for guest checkout
+      }),
     });
     const { paymentIntent, ephemeralKey, customer } = await response.json();
 
@@ -36,6 +42,9 @@ export default function CheckoutScreen() {
       customerId: customer,
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent,
+      applePay: {
+        merchantCountryCode: 'US',
+      },
       allowsDelayedPaymentMethods: false,
       defaultBillingDetails: {
         name: 'Jane Doe',
