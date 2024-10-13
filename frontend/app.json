@@ -41,6 +41,13 @@
         {
           "domain": "dev-jr03u2n4ktx2p1ud.us.auth0.com"
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.crowd",
+          "enableGooglePay": false
+        }
       ]
     ],
     "experiments": {

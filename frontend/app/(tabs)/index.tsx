@@ -1,22 +1,23 @@
-import axios from 'axios';
-
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { View, Text, TouchableOpacity } from 'react-native';
+import Popup from '@/components/event/Popup';
 
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
-const API_URL = 'http://localhost:3000';
-
 export default function HomeScreen() {
 
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -50,27 +51,29 @@ export default function HomeScreen() {
     return <Text>Loading...</Text>;
   }
 
-  (async() => {
-    try {
-      const res = await axios.get(`${API_URL}/api/markers`)
-      setMarkers(res.data);
-    } catch (err) {
-      console.error('Error fetching markers: ', err);
-      throw err;
-    }
-  })();
-
   const markersTest = [
     {
       latlng: { latitude: 47.655334, longitude: -122.303520 },
       title: "Example Party",
-      description: "Best party on the block"
+      description: "Best party on the block",
+      address: "123 N st",
+      time: "22:00"
     }
   ]
 
   const handleSearchPress = () => {
     router.push('/search');
   };
+
+  const openPopup = (marker) => {
+    setSelectedMarker(marker);
+    setIsPopupVisible(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupVisible(false);
+  };
+
 
   return (
     <View className="flex-1">
@@ -81,11 +84,15 @@ export default function HomeScreen() {
           <Marker
             key={index}
             coordinate={marker.latlng}
-            title={marker.title}
-            description={marker.description}
+            onPress={() => openPopup(marker)}
           />
         ))}
         </MapView>
+        <Popup
+          visible={isPopupVisible}
+          onClose={closePopup}
+          marker={selectedMarker}
+        />
         <TouchableOpacity 
           className="absolute top-[10%] w-full justify-center items-center"
           onPress={handleSearchPress}

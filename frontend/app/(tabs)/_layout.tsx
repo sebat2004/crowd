@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
+import { View } from "react-native";
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -13,6 +14,12 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
+        tabBarStyle: {
+          height: 78
+        },
+        tabBarBackground: () => (
+          <View className="border-y border-[#D9D9D9]"></View>
+        )
       }}>
       <Tabs.Screen
         name="index"
@@ -44,7 +51,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      
     </Tabs>
   );
 }
