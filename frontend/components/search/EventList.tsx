@@ -61,7 +61,7 @@ export default function EventList({ setMapRegion, toggleModal }) {
           </View>
           <View className="w-1/2 p-2">
             <Image 
-              source={{ uri: item.image }}
+              source={{ uri: item.imageURL }}
               className="w-full h-full rounded-lg"
             />
           </View>

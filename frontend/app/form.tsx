@@ -199,6 +199,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
     } catch (error) {
       console.error("Error posting event:", error);
     }
+    toggleCreateEventModal();
   };
 
   const renderCurrentStep = () => {
