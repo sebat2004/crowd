@@ -42,7 +42,7 @@ export default Popup = ({ visible, onClose, marker }) => {
 							<View className="flex">
 								<Link href={{
 									pathname: "/checkout",
-									params: { eventId: marker.id }
+									params: { title: marker.name, cost: marker.admission_price }
 								}} asChild>
 									<TouchableOpacity onPress={onClose} className="bg-blue-950 p-3 rounded-lg flex flex-row justify-center items-center">
 										<Foundation name="clipboard-pencil" size={24} color="white" className="p-0 m-0"/>

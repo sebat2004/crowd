@@ -259,15 +259,15 @@ app.delete("/events/:id", async (req, res) => {
 
 app.post("/payment-sheet", async (req, res) => {
   try {
+    const { cost } = req.body
     const customer = await stripe.customers.create();
-
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
       { apiVersion: "2024-09-30.acacia" }
     );
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 100,
+      amount: parseInt(cost),
       currency: "usd",
       customer: customer.id,
       // In production, you should collect this from your customer

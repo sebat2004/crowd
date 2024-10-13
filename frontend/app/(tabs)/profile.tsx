@@ -69,9 +69,7 @@ export default function ProfileScreen() {
           </Modal>
         </>
       ) : (
-        <>
-          <LoginButton></LoginButton>
-        </>
+        <LoginButton />
       )}
     </View>
   );
