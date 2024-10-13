@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import MapView, { Marker } from 'react-native-maps';
+import React, { useState, useEffect } from "react";
+import MapView, { Marker } from "react-native-maps";
 
-import { View, Text, TouchableOpacity, Modal, Button } from 'react-native';
-import Popup from '@/components/event/Popup';
+import { View, Text, TouchableOpacity, Modal, Button } from "react-native";
+import Popup from "@/components/event/Popup";
 
-import * as Location from 'expo-location';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
-import EventList from '../EventList';
-import Entypo from '@expo/vector-icons/Entypo';
+import * as Location from "expo-location";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { router } from "expo-router";
+import EventList from "../EventList";
+import Entypo from "@expo/vector-icons/Entypo";
 
 import axios from 'axios';
 
@@ -40,8 +40,8 @@ export default function HomeScreen() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
@@ -68,6 +68,16 @@ export default function HomeScreen() {
   if (!mapRegion) {
     return <Text>Loading...</Text>;
   }
+  console.log(location);
+  const markersTest = [ 
+    {
+      latlng: { latitude: 47.655334, longitude: -122.30352 },
+      title: "Example Party",
+      description: "Best party on the block",
+      address: "123 N st",
+      time: "22:00",
+    },
+  ];
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -82,10 +92,10 @@ export default function HomeScreen() {
     setIsPopupVisible(false);
   };
 
-
   return (
     <View className="flex-1">
-      <MapView className="w-full h-full justify-center items-center"
+      <MapView
+        className="w-full h-full justify-center items-center"
         region={mapRegion}
       >
         {events.map((event, index) => (
@@ -104,7 +114,7 @@ export default function HomeScreen() {
         onClose={closePopup}
         marker={selectedMarker}
       />
-      <TouchableOpacity 
+      <TouchableOpacity
         className="absolute top-[10%] w-full justify-center items-center"
         onPress={toggleModal}
         activeOpacity={1}

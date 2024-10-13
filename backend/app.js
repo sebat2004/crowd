@@ -6,7 +6,7 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_SK)
+const stripe = new Stripe(process.env.STRIPE_SK);
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -142,19 +142,17 @@ app.use((req, res) => {
 });
 
 app.post("/payment-sheet", async (req, res) => {
-
   try {
+    const customer = await stripe.customers.create();
 
-    const customer = await stripe.customers.create()
-  
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
-      { apiVersion: '2024-09-30.acacia' }
+      { apiVersion: "2024-09-30.acacia" }
     );
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, 
-      currency: 'usd',
+      amount: 1000,
+      currency: "usd",
       customer: customer.id,
       // In production, you should collect this from your customer
       automatic_payment_methods: {
@@ -166,12 +164,13 @@ app.post("/payment-sheet", async (req, res) => {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
-      publishableKey: 'pk_live_51Q9GX8FDMnNxWG99uDKvCi1vntoMoomfk6eLD247QIv0xxyrIercSAdrZZTeqZmR3n6ZhloB5N6edXMLMsX9NJI600oXbzflFN'
+      publishableKey:
+        "pk_live_51Q9GX8FDMnNxWG99uDKvCi1vntoMoomfk6eLD247QIv0xxyrIercSAdrZZTeqZmR3n6ZhloB5N6edXMLMsX9NJI600oXbzflFN",
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-})
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;

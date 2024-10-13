@@ -13,7 +13,7 @@ export const LogoutButton = () => {
   };
 
   return (
-    <View className="w-40 bg-black rounded-md">
+    <View className="w-40 bg-gray-200 rounded-md">
       <Button color="red" onPress={onPress} title="Log out" />
     </View>
   );
