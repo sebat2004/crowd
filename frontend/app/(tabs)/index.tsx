@@ -10,6 +10,8 @@ import { router } from 'expo-router';
 import EventList from '../EventList';
 import Entypo from '@expo/vector-icons/Entypo';
 
+import axios from 'axios';
+
 export default function HomeScreen() {
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
@@ -19,6 +21,20 @@ export default function HomeScreen() {
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3000/events`);
+        setEvents(res.data);
+      } catch (err) {
+        console.error('Error fetching events: ', err);
+      }
+    }
+    fetchEvents();
+  }, []);
   
 
   useEffect(() => {
@@ -30,7 +46,6 @@ export default function HomeScreen() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      console.log(location)
       setLocation(location);
     })();
   }, []);
@@ -54,16 +69,6 @@ export default function HomeScreen() {
     return <Text>Loading...</Text>;
   }
 
-  const markersTest = [
-    {
-      latlng: { latitude: 47.655334, longitude: -122.303520 },
-      title: "Example Party",
-      description: "Best party on the block",
-      address: "123 N st",
-      time: "22:00"
-    }
-  ]
-
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -83,11 +88,11 @@ export default function HomeScreen() {
       <MapView className="w-full h-full justify-center items-center"
         region={mapRegion}
       >
-        {markersTest.map((marker, index) => (
+        {events.map((event, index) => (
           <Marker
             key={index}
-            coordinate={marker.latlng}
-            onPress={() => openPopup(marker)}
+            coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
+            onPress={() => openPopup(event)}
           />
         ))}
         </MapView>
