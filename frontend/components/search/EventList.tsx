@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, TextInput, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, FlatList, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,8 +60,10 @@ export default function EventList({ setMapRegion, toggleModal }) {
             </View>
           </View>
           <View className="w-1/2 p-2">
-            <View className="bg-gray-200 rounded-lg w-full h-full">
-            </View>
+            <Image 
+              source={{ uri: item.image }}
+              className="w-full h-full rounded-lg"
+            />
           </View>
         </View>
       </View>
