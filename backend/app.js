@@ -17,17 +17,17 @@ import { Upload } from "@aws-sdk/lib-storage";
 
 dotenv.config();
 const app = express();
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const stripe = new Stripe(process.env.STRIPE_SK);
 
 const imageSchema = new mongoose.Schema({
-  name: {type: String, required: true, unique: true},
-  data: {type: Buffer, required: true},
-  contentType: {type: String, required: true},
+  name: { type: String, required: true, unique: true },
+  data: { type: Buffer, required: true },
+  contentType: { type: String, required: true },
 });
 
-const Image = mongoose.model('Image', imageSchema);
+const Image = mongoose.model("Image", imageSchema);
 
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -93,7 +93,7 @@ const Event = mongoose.model("Event", eventSchema);
 // Express app setup
 const endpointSecret = "";
 
-app.post("/images", upload.single('image'), async (req, res) => {
+app.post("/images", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No image file provided" });
@@ -115,28 +115,31 @@ app.post("/images", upload.single('image'), async (req, res) => {
     await parallelUploads3.done();
 
     const imageUrl = `https://${configuration.Bucket}.s3.amazonaws.com/${parallelUploads3.params.Key}`;
-    res.status(200).json({ imageName: imageUrl });
+    console.log(imageUrl);
+    res.status(200).json({ imageUrl: imageUrl });
   } catch (error) {
     console.error("Error uploading image:", error);
     res.status(500).json({ message: "Error uploading image" });
   }
 });
 
-app.get('/images/:name', async (req, res) => {
-  const {imagename} = req.params;
-  const image = await Image.findOne({name});
+app.get("/images/:name", async (req, res) => {
+  const { imagename } = req.params;
+  const image = await Image.findOne({ name });
   if (!image) {
-    return res.status(404).json({success: false, message: 'Image not found.'});
+    return res
+      .status(404)
+      .json({ success: false, message: "Image not found." });
   }
-  res.set('Content-Type', image.contentType);
+  res.set("Content-Type", image.contentType);
   res.send(image.data);
 });
 
 const createFormData = (uri) => {
-  const fileName = uri.split('/').pop();
-  const fileType = fileName.split('.').pop();
+  const fileName = uri.split("/").pop();
+  const fileType = fileName.split(".").pop();
   const formData = new FormData();
-  formData.append('image', {
+  formData.append("image", {
     name: fileName,
     uri,
     type: `image/${fileType}`,
@@ -258,6 +261,8 @@ app.post("/events", async (req, res) => {
       cost,
       imageUrl,
     } = req.body;
+
+    console.log(req.body);
 
     const event = new Event({
       name,

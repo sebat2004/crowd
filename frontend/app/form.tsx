@@ -6,7 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Button,
-  Image
+  Image,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import InputField from "@/components/form/InputField";
@@ -17,14 +17,14 @@ import Animated, {
   withSpring,
   runOnJS,
 } from "react-native-reanimated";
-import Entypo from '@expo/vector-icons/Entypo';
-import * as ImagePicker from 'expo-image-picker';
+import Entypo from "@expo/vector-icons/Entypo";
+import * as ImagePicker from "expo-image-picker";
 
 const createFormData = (uri) => {
-  const fileName = uri.split('/').pop();
-  const fileType = fileName.split('.').pop();
+  const fileName = uri.split("/").pop();
+  const fileType = fileName.split(".").pop();
   const formData = new FormData();
-  formData.append('image', {
+  formData.append("image", {
     name: fileName,
     uri,
     type: `image/${fileType}`,
@@ -36,31 +36,32 @@ const postImage = async (uri) => {
   try {
     const data = createFormData(uri);
     console.log("Form data: ", data);
-    const response = await fetch('http://localhost:3000/images', {
-      method: 'POST',
+    const response = await fetch("http://localhost:3000/images", {
+      method: "POST",
       body: data,
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data",
       },
     });
     const responseData = await response.json();
-    return responseData.imageName;
+    console.log(responseData);
+    return responseData.imageUrl;
   } catch (error) {
     console.error("Error posting image:", error);
     throw error;
   }
 };
 
-
 const UploadImage = ({ onImageSelected }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const pickImageAsync = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert("Sorry, we need camera roll permissions to make this work!");
         return;
       }
 
@@ -78,28 +79,33 @@ const UploadImage = ({ onImageSelected }) => {
       console.log("Error picking image:", error);
     }
   };
-  
+
   return (
     <>
-      {selectedImage && <Image source={{ uri: selectedImage.uri }} style={uploadPhotoStyles.image} />}
-      <TouchableOpacity style={uploadPhotoStyles.container} onPress={pickImageAsync}>
+      {selectedImage && (
+        <Image
+          source={{ uri: selectedImage.uri }}
+          style={uploadPhotoStyles.image}
+        />
+      )}
+      <TouchableOpacity
+        style={uploadPhotoStyles.container}
+        onPress={pickImageAsync}
+      >
         <Text>+</Text>
       </TouchableOpacity>
     </>
   );
 };
 
-//TODO: 
-//1. Add image upload 
+//TODO:
 //2. CheckBox thing (check this -> https://dribbble.com/shots/5042108-Car-Insurance-Quote) (look at top right, trying to get a nice little animation)
-//3. make submit button look cool 
-//4. nitpicky thing but get the datepicker in the right position. 
-//5. line
-//6. redirect to profile after submit
+//3. make submit button look cool
+//4. nitpicky thing but get the datepicker in the right position.
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-//main transition for the renders 
+//main transition for the renders
 const StepContent = ({ children, step }) => {
   const translateY = useSharedValue(50);
   const opacity = useSharedValue(0);
@@ -142,7 +148,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
   const [cost, setCost] = useState<string>("");
   const [eventDate, setEventDate] = useState<Date>(new Date());
   const [eventTime, setEventTime] = useState<Date>(new Date());
-  //somewhere here add the file thingy 
+  //somewhere here add the file thingy
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageSelected = (image) => {
@@ -161,36 +167,36 @@ export default function FormScreen({ toggleCreateEventModal }) {
 
   const handleSubmit = async () => {
     try {
-      let imageUrl = '';
+      let imageUrl = "";
       if (selectedImage) {
-        imageUrl = await postImage(selectedImage.uri);
+        await postImage(selectedImage.uri).then(async (imageUrl) => {
+          const formData = {
+            name,
+            event_date: eventDate,
+            address,
+            description,
+            capacity: parseInt(capacity, 10),
+            coordinates,
+            cost: parseInt(cost, 10),
+            imageUrl,
+          };
+
+          console.log("Submitting form data:", formData);
+
+          const response = await fetch("http://localhost:3000/events", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const data = await response.json();
+          console.log("Success:", data);
+        });
       }
-
-      const formData = {
-        name,
-        event_date: eventDate,
-        address,
-        description,
-        capacity: parseInt(capacity, 10),
-        coordinates,
-        cost: parseInt(cost, 10),
-        imageUrl,
-      };
-
-      console.log("Submitting form data:", formData);
-
-      const response = await fetch("http://localhost:3000/events", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      console.log("Success:", data);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error posting event:", error);
     }
   };
 
@@ -221,8 +227,8 @@ export default function FormScreen({ toggleCreateEventModal }) {
         );
       case 3:
         return (
-          <StepContent step={step}> 
-          <View style={styles.containerDate}>
+          <StepContent step={step}>
+            <View style={styles.containerDate}>
               <Text className="text-xl mb-2">Date and Time</Text>
               <View style={styles.dateTimeContainer}>
                 <DateTimePicker
@@ -284,7 +290,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
           <StepContent step={step}>
             <View style={styles.container}>
               <Text style={styles.title}>Upload an image</Text>
-              <Button title="Pick an image from camera roll"/>
+              <Button title="Pick an image from camera roll" />
               <UploadImage onImageSelected={handleImageSelected} />
             </View>
           </StepContent>
@@ -293,7 +299,11 @@ export default function FormScreen({ toggleCreateEventModal }) {
         return (
           <StepContent step={step}>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} title="Submit" onPress={handleSubmit} >
+              <TouchableOpacity
+                style={styles.button}
+                title="Submit"
+                onPress={handleSubmit}
+              >
                 <Text style={styles.buttonText}>Submit</Text>
               </TouchableOpacity>
             </View>
@@ -307,9 +317,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
   return (
     <SafeAreaView className="flex-1">
       <View className="flex w-full pl-6">
-        <TouchableOpacity
-          onPress={toggleCreateEventModal}
-        >
+        <TouchableOpacity onPress={toggleCreateEventModal}>
           <Entypo name="chevron-down" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -349,60 +357,60 @@ export default function FormScreen({ toggleCreateEventModal }) {
   );
 }
 
-//so cursed but the native wind shit has not been working. 
+//so cursed but the native wind shit has not been working.
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   containerDate: {
     marginBottom: 16,
-    width: '100%',
-    minWidth:'70%', 
-    paddingRight:20,
-    justifyContent: 'center',
-    alignItems: 'center'
+    width: "100%",
+    minWidth: "70%",
+    paddingRight: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
     marginBottom: 8,
   },
   dateTimeContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   input: {
     height: 50,
     fontSize: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    minWidth: '90%',
+    borderBottomColor: "#ccc",
+    minWidth: "90%",
   },
   multilineInput: {
     height: 100,
-    textAlignVertical: 'top',
-    borderBottomWidth:1,
-    minWidth:'70%',
-    paddingTop:8,
-    paddingBottom:8, 
+    textAlignVertical: "top",
+    borderBottomWidth: 1,
+    minWidth: "70%",
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     marginTop: 20,
   },
   button: {
     width: 100,
     height: 40,
-    backgroundColor: '#172554',
+    backgroundColor: "#172554",
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
   },
   image: {
@@ -416,19 +424,19 @@ const uploadPhotoStyles = StyleSheet.create({
     height: 56,
     width: 56,
     borderRadius: 28,
-    backgroundColor: 'lightblue',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    backgroundColor: "lightblue",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     elevation: 2,
-    marginBottom: 16
+    marginBottom: 16,
   },
   image: {
     width: 100,
     height: 100,
     marginBottom: 16,
-    borderRadius: 50
-  }
-})
+    borderRadius: 50,
+  },
+});
