@@ -6,6 +6,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
+  const [qrCode, setQrCode] = useState(null);
 
   const API_URL = "http://localhost:3000"
 
@@ -20,8 +21,6 @@ export default function CheckoutScreen() {
       }),
     });
     const { paymentIntent, ephemeralKey, customer } = await response.json();
-
-    console.log(response)
 
     return {
       paymentIntent,
@@ -55,13 +54,35 @@ export default function CheckoutScreen() {
     }
   };
 
+  const generateQRCode = async paymentIntentId => {
+    try {
+      const response = await fetch(`${API_URL}/create-ticket`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentIntentId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setQrCode(data.qrCode);
+      } else {
+        Alert.alert('Error', 'Failed to generate QR code');
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      Alert.alert('Error', 'Failed to generate QR code');
+    }
+  };
+
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
-
     if (error) {
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
-      Alert.alert('Success', 'Your order is confirmed!');
+      Alert.alert('Success', 'Your order is confirmed! Check your email for your ticket.');
     }
   };
 
