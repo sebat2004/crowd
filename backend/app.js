@@ -300,6 +300,9 @@ app.post("/events", async (req, res) => {
       ).then((res) => res.json());
 
       console.log(locationData.results);
+      if (locationData.results.length === 0) {
+        return res.status(400).json({ message: "Invalid address" });
+      }
       const location = locationData.results[0].geometry.location;
       coordinates = [location.lng, location.lat];
     }
@@ -331,6 +334,10 @@ app.post("/events", async (req, res) => {
       });
       console.log("user", user);
       await user.save();
+    } else {
+      seenUser.ownedEvents.push(event);
+      console.log("seenUser", seenUser);
+      await seenUser.save();
     }
     res.status(201).json(savedEvent);
   } catch (error) {
