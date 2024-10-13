@@ -68,7 +68,7 @@ export default function HomeScreen() {
   if (!mapRegion) {
     return <Text>Loading...</Text>;
   }
-  console.log(location);
+  // console.log(location);
   const markersTest = [ 
     {
       latlng: { latitude: 47.655334, longitude: -122.30352 },
