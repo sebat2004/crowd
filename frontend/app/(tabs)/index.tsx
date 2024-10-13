@@ -69,7 +69,6 @@ export default function HomeScreen() {
             <Text className="ml-1 text-gray-400">Search</Text>
           </View>
         </TouchableOpacity>
-      
     </View>
   );
 }
