@@ -145,7 +145,7 @@ export default function HomeScreen() {
         onRequestClose={toggleCreateEventModal}
         transparent={false}
       >
-        <FormScreen />
+        <FormScreen toggleCreateEventModal={toggleCreateEventModal}/>
       </Modal>
 
       <Modal

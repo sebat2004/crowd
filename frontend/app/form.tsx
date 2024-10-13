@@ -9,7 +9,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import InputField from "@/components/form/InputField";
 import Animated, {
@@ -19,6 +18,7 @@ import Animated, {
   withSpring,
   runOnJS,
 } from "react-native-reanimated";
+import Entypo from '@expo/vector-icons/Entypo';
 
 
 //TODO: 
@@ -56,7 +56,7 @@ const StepContent = ({ children, step }) => {
   );
 };
 
-export default function FormScreen() {
+export default function FormScreen({ toggleCreateEventModal }) {
   const [step, setStep] = useState<number>(1);
 
   //for datepicker component
@@ -212,35 +212,44 @@ export default function FormScreen() {
   };
 
   return (
-    <SafeAreaView className="flex p-20 h-full justify-center items-center w-full">
-      <View className="flex justify-center w-full h-80 items-center">
-        <View className="flex justify-center w-full items-center mb-10 bg-transparent">
-          <Text className="text-2xl">Welcome! Create your event here!</Text>
-        </View>
-        <View className="flex items-center justify-center h-40">
-          {renderCurrentStep()}
-        </View>
-        <View className="flex-row justify-center items-center w-1/2">
-          {step > 1 && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setStep(step - 1)}
-              >
-                <Text style={styles.buttonText}>Back</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          {step < 7 && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setStep(step + 1)}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+    <SafeAreaView className="flex-1">
+      <View className="flex w-full pl-6">
+        <TouchableOpacity
+          onPress={toggleCreateEventModal}
+        >
+          <Entypo name="chevron-down" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+      <View className="flex p-12 h-full justify-center items-center w-full">
+        <View className="flex justify-center w-full h-80 items-center">
+          <View className="flex justify-center w-full items-center mb-10 bg-transparent">
+            <Text className="text-2xl">Welcome! Create your event here!</Text>
+          </View>
+          <View className="flex items-center justify-center h-40">
+            {renderCurrentStep()}
+          </View>
+          <View className="flex-row justify-center items-center w-1/2">
+            {step > 1 && (
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setStep(step - 1)}
+                >
+                  <Text style={styles.buttonText}>Back</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {step < 7 && (
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setStep(step + 1)}
+                >
+                  <Text style={styles.buttonText}>Next</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -276,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    minWidth: '70%',
+    minWidth: '90%',
   },
   multilineInput: {
     height: 100,
