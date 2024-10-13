@@ -133,6 +133,7 @@ export default function HomeScreen() {
               longitude: event.location.coordinates[0],
             }}
             onPress={() => openPopup(event)}
+            title={event.name}
           />
         ))}
       </MapView>

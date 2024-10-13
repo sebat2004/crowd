@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { View, TextInput, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { View, TextInput, Text, FlatList, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ export default function EventList({ setMapRegion, toggleModal }) {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [error, setError] = useState(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -26,6 +27,12 @@ export default function EventList({ setMapRegion, toggleModal }) {
       }
     }
     fetchEvents();
+
+    setTimeout(() => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      } 
+    }, 1000);
   }, []);
 
   const filteredEvents = useMemo(() => {
@@ -60,8 +67,10 @@ export default function EventList({ setMapRegion, toggleModal }) {
             </View>
           </View>
           <View className="w-1/2 p-2">
-            <View className="bg-gray-200 rounded-lg w-full h-full">
-            </View>
+            <Image 
+              source={{ uri: item.imageURL }}
+              className="w-full h-full rounded-lg"
+            />
           </View>
         </View>
       </View>
@@ -95,7 +104,8 @@ export default function EventList({ setMapRegion, toggleModal }) {
         <View className="relative w-10/12 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
           <Ionicons name="search" size={18} color="black" />
           <TextInput 
-            className="ml-1 text-gray-400"
+            ref={searchInputRef}
+            className="ml-1 text-gray-400 flex-1"
             onChangeText={setSearchText}
             value={searchText}
             placeholder="Search"

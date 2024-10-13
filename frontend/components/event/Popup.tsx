@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { View, Text, Modal, TouchableOpacity, Button } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Button, Image } from 'react-native';
 import { BlurView } from 'expo-blur';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Foundation from '@expo/vector-icons/Foundation';
@@ -29,9 +29,11 @@ export default Popup = ({ visible, onClose, marker }) => {
 							</TouchableOpacity>
 						</View>
 						<View className="flex-auto w-full h-1/3 mb-5">
-							<View className="w-full h-full bg-slate-400 rounded-xl">
-
-							</View>
+							<Image
+								className="w-full h-full rounded-xl"
+								source={{uri: marker.imageURL}}
+								style={{width: '100%', height: '100%', borderRadius: 20}}
+							/>
 						</View>
 						<View className="flex-auto w-full justify-between">
 							<View className="flex">
