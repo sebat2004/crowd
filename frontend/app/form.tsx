@@ -19,6 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Entypo from "@expo/vector-icons/Entypo";
 import * as ImagePicker from "expo-image-picker";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const createFormData = (uri) => {
   const fileName = uri.split("/").pop();
@@ -92,7 +93,7 @@ const UploadImage = ({ onImageSelected }) => {
         style={uploadPhotoStyles.container}
         onPress={pickImageAsync}
       >
-        <Text>+</Text>
+        <AntDesign name="plus" size={24} color="black" />
       </TouchableOpacity>
     </>
   );
@@ -290,7 +291,6 @@ export default function FormScreen({ toggleCreateEventModal }) {
           <StepContent step={step}>
             <View style={styles.container}>
               <Text style={styles.title}>Upload an image</Text>
-              <Button title="Pick an image from camera roll" />
               <UploadImage onImageSelected={handleImageSelected} />
             </View>
           </StepContent>
