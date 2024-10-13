@@ -32,7 +32,6 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="search" options={{ presentation: 'modal' }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>

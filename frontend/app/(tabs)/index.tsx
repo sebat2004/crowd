@@ -2,20 +2,21 @@ import axios from 'axios';
 
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { View, Text, TouchableOpacity } from 'react-native';
-
+import { View, Text, TouchableOpacity, Modal, Button } from 'react-native';
 import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
+import EventList from '../EventList';
+import Entypo from '@expo/vector-icons/Entypo';
 
 const API_URL = 'http://localhost:3000';
 
 export default function HomeScreen() {
-
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   
   useEffect(() => {
     (async () => {
@@ -68,8 +69,8 @@ export default function HomeScreen() {
     }
   ]
 
-  const handleSearchPress = () => {
-    router.push('/search');
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
   };
 
   return (
@@ -86,9 +87,9 @@ export default function HomeScreen() {
           />
         ))}
         </MapView>
-        <TouchableOpacity 
+        <TouchableOpacity
           className="absolute top-[10%] w-full justify-center items-center"
-          onPress={handleSearchPress}
+          onPress={toggleModal}
           activeOpacity={1}
         >
           <View className="relative w-4/5 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
@@ -96,6 +97,18 @@ export default function HomeScreen() {
             <Text className="ml-1 text-gray-400">Search</Text>
           </View>
         </TouchableOpacity>
+
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          onRequestClose={toggleModal}
+          transparent={false}
+        >
+          <View className="flex-1 bg-white">
+            <Button title="" onPress={toggleModal} />
+            <EventList setMapRegion={setMapRegion} toggleModal={toggleModal} />
+          </View>
+        </Modal>
     </View>
   );
 }
