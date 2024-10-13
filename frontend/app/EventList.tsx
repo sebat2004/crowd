@@ -31,8 +31,8 @@ export default function EventList({ setMapRegion, toggleModal }) {
 
   const travelToLocation = (location) => {
     setMapRegion({
-      latitude: location.latitude,
-      longitude: location.longitude,
+      latitude: location.coordinates[1],
+      longitude: location.coordinates[0],
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
     });
