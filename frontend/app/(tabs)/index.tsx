@@ -2,9 +2,9 @@ import axios from 'axios';
 
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-
 import { View, Text, TouchableOpacity } from 'react-native';
 
+import * as Location from 'expo-location';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
@@ -12,21 +12,53 @@ const API_URL = 'http://localhost:3000';
 
 export default function HomeScreen() {
 
-  const [text, setText] = useState('');
+  const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [mapRegion, setMapRegion] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      console.log(location)
+      setLocation(location);
+    })();
+  }, []);
 
   useEffect(() => {
-    const getMarkers = async() => {
-      try {
-        const res = await axios.get(`${API_URL}/api/markers`)
-        setMarkers(res.data);
-      } catch (err) {
-        console.error('Error fetching markers: ', err);
-        throw err;
-      }
+    if (location) {
+      setMapRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
     }
-    getMarkers();
-  }, []);
+  }, [location]);
+
+  if (errorMsg) {
+    return <Text>{errorMsg}</Text>;
+  }
+
+  if (!mapRegion) {
+    return <Text>Loading...</Text>;
+  }
+
+  (async() => {
+    try {
+      const res = await axios.get(`${API_URL}/api/markers`)
+      setMarkers(res.data);
+    } catch (err) {
+      console.error('Error fetching markers: ', err);
+      throw err;
+    }
+  })();
 
   const markersTest = [
     {
@@ -43,12 +75,7 @@ export default function HomeScreen() {
   return (
     <View className="flex-1">
       <MapView className="w-full h-full justify-center items-center"
-        initialRegion={{
-          latitude: 47.655334,
-          longitude: -122.303520,
-          latitudeDelta: 0.2,
-          longitudeDelta: 0.02,
-        }}
+        region={mapRegion}
       >
         {markersTest.map((marker, index) => (
           <Marker
