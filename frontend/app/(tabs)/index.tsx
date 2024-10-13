@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 
-import { View, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
@@ -35,9 +35,6 @@ export default function HomeScreen() {
       description: "Best party on the block"
     }
   ]
-
-
-  })
 
   const handleSearchPress = () => {
     router.push('/search');
