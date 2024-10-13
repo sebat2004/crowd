@@ -20,7 +20,8 @@ export default function HomeScreen() {
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] =
+    useState(false);
   const [events, setEvents] = useState([]);
 
   function measure(lat1, lon1, lat2, lon2) {
@@ -41,14 +42,14 @@ export default function HomeScreen() {
 
   const handleRegionChange = async (region, gesture) => {
     const test = await mapRef.getMapBoundaries();
-    const maxDistance = Math.min(
+    const maxDistance = Math.max(
       measure(
         test.southWest.latitude,
         test.southWest.longitude,
         test.northEast.latitude,
         test.northEast.longitude
       ),
-      6000
+      10000
     );
     console.log(maxDistance);
     const url = `http://localhost:3000/events?latitude=${region.latitude}&longitude=${region.longitude}&maxDistance=${maxDistance}`;
@@ -128,7 +129,10 @@ export default function HomeScreen() {
         {events.map((event, index) => (
           <Marker
             key={index}
-            coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
+            coordinate={{
+              latitude: event.location.coordinates[1],
+              longitude: event.location.coordinates[0],
+            }}
             onPress={() => openPopup(event)}
           />
         ))}
