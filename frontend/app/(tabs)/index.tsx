@@ -101,8 +101,8 @@ export default function HomeScreen() {
         {events.map((event, index) => (
           <Marker
             key={index}
-            title={event.name}
-            description={event.description}
+            title={event.name.length > 20 ? `${event.name.substring(0, 20)}...` : event.name}
+            description={event.description.length > 30 ? `${event.description.substring(0, 30)}...` : event.description}
             coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
             onPress={() => openPopup(event)}
           />

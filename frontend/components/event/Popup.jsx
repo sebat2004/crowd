@@ -19,9 +19,9 @@ export default Popup = ({ visible, onClose, marker }) => {
 			<BlurView className="flex-1 w-full justify-center items-center" intensity={10} >
 				<View className="flex-1 justify-center items-center w-10/12 h-full">
 					<View
-						className="bg-white p-5 w-full h-3/5 rounded-3xl shadow-lg flex flex-col justify-start"
+						className="bg-gray-100 p-5 w-full h-3/5 rounded-3xl shadow-lg flex flex-col justify-start"
 					>
-						<View className="flex w-full flex-row justify-end pb-2">
+						<View className="flex w-full flex-row justify-end pb-3">
 							<TouchableOpacity
 								onPress={onClose}
 							>
@@ -44,7 +44,7 @@ export default Popup = ({ visible, onClose, marker }) => {
 									pathname: "/checkout",
 									params: { eventId: marker.id }
 								}} asChild>
-									<TouchableOpacity onPress={onClose} className="bg-blue-900 p-3 rounded flex flex-row justify-center items-center">
+									<TouchableOpacity onPress={onClose} className="bg-green-600 p-3 rounded-lg flex flex-row justify-center items-center">
 										<Foundation name="clipboard-pencil" size={24} color="white" className="p-0 m-0"/>
 										<Text className="text-white text-center pl-2 text-lg">Register Now</Text>
 									</TouchableOpacity>

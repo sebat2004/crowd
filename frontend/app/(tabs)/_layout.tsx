@@ -12,10 +12,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#05AA32',
         headerShown: false,
         tabBarStyle: {
-          height: 78
+          height: 78,
+          backgroundColor: '#F0F0F0',
         },
         tabBarBackground: () => (
           <View className="border-y border-[#D9D9D9]"></View>
