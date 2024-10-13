@@ -1,6 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import Stripe from "stripe";
+import sgMail from "@sendgrid/mail"
+import QRCode from "qrcode";
 
 // Load environment variables from .env file
 import dotenv from "dotenv";
@@ -8,6 +10,7 @@ dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SK)
 
+sgMail.setApiKey(process.env.SENDGRID_KEY);
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
 mongoose
@@ -43,12 +46,74 @@ const eventSchema = new mongoose.Schema({
   location: pointSchema,
 });
 
+const ticketSchema = new mongoose.Schema({
+  ticketId: String,
+  valid: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Ticket = mongoose.model('Ticket', ticketSchema);
+
 eventSchema.index({ location: "2dsphere" });
 
 const Event = mongoose.model("Event", eventSchema);
 
 // Express app setup
 const app = express();
+const endpointSecret = ""
+
+app.post("/webhook", express.raw({type: "application/json"}), async (req, res) => {
+  let event = req.body;
+
+  if (endpointSecret) {
+    const signature = req.headers['stripe-signature'];
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        signature,
+        endpointSecret
+      );
+    } catch (err) {
+      console.log(`⚠️  Webhook signature verification failed.`, err.message);
+      return res.sendStatus(400);
+    }
+  }
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      const paymentIntent = event.data.object;
+      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+      await (new Ticket({ ticketId: paymentIntent.id })).save();
+      const qr = await QRCode.toBuffer(paymentIntent.id)
+      const msg = {
+        to: "TODO",
+        from: "noreply@pdx9280.com",
+        subject: "Your ticket has arrived",
+        text: "Thank you for your purchase. Your QR code ticket is attached.",
+        html: `<img src="cid:qrcode" alt="Ticket QR Code" />`,
+        attachments: [
+          {
+            content: qr.toString("base64"),
+            filename: "qrcode.png",
+            type: "image/png",
+            content_id: "qrcode"
+          }
+        ]
+      }
+      sgMail
+        .send(msg)
+        .then(() => {
+          console.log("email sent")
+        })
+        .catch(err => {
+          console.error(err)
+        })
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}.`);
+  }
+  res.send();
+});
+
 app.use(express.json());
 
 // CRUD routes
@@ -136,15 +201,8 @@ app.delete("/events/:id", async (req, res) => {
   }
 });
 
-// 404 route
-app.use((req, res) => {
-  res.status(404).json({ message: "Not found" });
-});
-
 app.post("/payment-sheet", async (req, res) => {
-
   try {
-
     const customer = await stripe.customers.create()
   
     const ephemeralKey = await stripe.ephemeralKeys.create(
@@ -153,7 +211,7 @@ app.post("/payment-sheet", async (req, res) => {
     );
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1000, 
+      amount: 100, 
       currency: 'usd',
       customer: customer.id,
       // In production, you should collect this from your customer
@@ -166,12 +224,41 @@ app.post("/payment-sheet", async (req, res) => {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
-      publishableKey: 'pk_live_51Q9GX8FDMnNxWG99uDKvCi1vntoMoomfk6eLD247QIv0xxyrIercSAdrZZTeqZmR3n6ZhloB5N6edXMLMsX9NJI600oXbzflFN'
+      publishableKey: 'pk_test_51Q9GX8FDMnNxWG99BVAFvcTLzqEvl2UCpifsG8rWvQvORmuWb8UAZOY6t1qep9AWxs6XFYyzUOxuYkZsATYcLMr900WqWdpAwe'
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error.message });
   }
 })
+
+app.post("/verify-ticket", async (req, res) => {
+  try {
+    const { ticketId } = req.body;
+    const ticket = await Ticket.findOne({ ticketId })
+
+    if (!ticket) {
+      return res.join({ success: false, message: "No ticket" })
+    }
+    
+    if (!ticket.valid) {
+      return res.json({ success: false, message: "Invalid ticket" });
+    }
+
+    ticket.valid = false;
+    await ticket.save();
+
+    res.json({ success: true, message: "Ticket verified and consumed" })
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+})
+
+// 404 route
+app.use((req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
