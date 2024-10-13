@@ -16,6 +16,18 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 
+const pointSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ["Point"],
+    required: true,
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+  },
+});
+
 // Event schema and model
 const eventSchema = new mongoose.Schema({
   name: String,
@@ -24,14 +36,12 @@ const eventSchema = new mongoose.Schema({
   description: String,
   attendees: Number,
   capacity: Number,
-  location: {
-    type: { type: String },
-    coordinates: [Number],
-  },
+  location: pointSchema,
 });
 
-const Event = mongoose.model("Event", eventSchema);
+eventSchema.index({ location: "2dsphere" });
 
+const Event = mongoose.model("Event", eventSchema);
 
 // Express app setup
 const app = express();
@@ -40,8 +50,28 @@ app.use(express.json());
 // CRUD routes
 app.get("/events", async (req, res) => {
   try {
-    const events = await Event.find();
-    res.json(events);
+    // Filter events by location
+    if (req.query.latitude && req.query.longitude) {
+      const latitude = parseFloat(req.query.latitude);
+      const longitude = parseFloat(req.query.longitude);
+      const maxDistance = parseInt(req.query.maxDistance) || 10000;
+
+      const eventsNearby = await Event.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [latitude, longitude],
+            },
+            $maxDistance: maxDistance,
+          },
+        },
+      });
+      res.json(eventsNearby);
+    } else {
+      const allEvents = await Event.find();
+      res.json(allEvents);
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
