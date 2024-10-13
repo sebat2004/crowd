@@ -263,10 +263,10 @@ app.get("/events/:id", async (req, res) => {
 app.get("/:userId/events", async (req, res) => {
   console.log("userId", req.params);
   try {
-    const user = await User.find({ auth0Id: req.params.userId });
+    const user = await User.findOne({ auth0Id: req.params.userId });
     console.log("user", user);
     if (!user) return res.status(404).json({ message: "User not found" });
-    console.log("user", user, user.ownedEvents);
+    console.log("user", user, "Owned Events", user.ownedEvents);
     res.json(user.ownedEvents);
   } catch (error) {
     res.status(500).json({ message: error.message });
