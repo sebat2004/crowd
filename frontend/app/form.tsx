@@ -26,6 +26,8 @@ import Entypo from '@expo/vector-icons/Entypo';
 //2. CheckBox thing (check this -> https://dribbble.com/shots/5042108-Car-Insurance-Quote) (look at top right, trying to get a nice little animation)
 //3. make submit button look cool 
 //4. nitpicky thing but get the datepicker in the right position. 
+//5. line
+//6. redirect to profile after submit
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 

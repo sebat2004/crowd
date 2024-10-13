@@ -10,19 +10,55 @@ import EventList from "@/components/search/EventList";
 import Entypo from "@expo/vector-icons/Entypo";
 import FormScreen from "../form";
 
-import axios from 'axios';
+import axios from "axios";
 
 export default function HomeScreen() {
   const [location, setLocation] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [mapRef, setMapRef] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
-
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
-
   const [events, setEvents] = useState([]);
+
+  function measure(lat1, lon1, lat2, lon2) {
+    // generally used geo measurement function
+    var R = 6378.137; // Radius of earth in KM
+    var dLat = (lat2 * Math.PI) / 180 - (lat1 * Math.PI) / 180;
+    var dLon = (lon2 * Math.PI) / 180 - (lon1 * Math.PI) / 180;
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d * 1000; // meters
+  }
+
+  const handleRegionChange = async (region, gesture) => {
+    const test = await mapRef.getMapBoundaries();
+    const maxDistance = Math.min(
+      measure(
+        test.southWest.latitude,
+        test.southWest.longitude,
+        test.northEast.latitude,
+        test.northEast.longitude
+      ),
+      6000
+    );
+    console.log(maxDistance);
+    const url = `http://localhost:3000/events?latitude=${region.latitude}&longitude=${region.longitude}&maxDistance=${maxDistance}`;
+    try {
+      const res = await axios.get(url);
+      setEvents(res.data);
+    } catch (err) {
+      console.error("Error fetching events: ", err);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -30,7 +66,7 @@ export default function HomeScreen() {
         const res = await axios.get(`http://localhost:3000/events`);
         setEvents(res.data);
       } catch (err) {
-        console.error('Error fetching events: ', err);
+        console.error("Error fetching events: ", err);
       }
     })();
 
@@ -79,13 +115,15 @@ export default function HomeScreen() {
 
   const toggleCreateEventModal = () => {
     setIsCreateEventModalVisible(!isCreateEventModalVisible);
-  }
+  };
 
   return (
     <View className="flex-1">
       <MapView
+        ref={(ref) => setMapRef(ref)}
         className="w-full h-full justify-center items-center"
         region={mapRegion}
+        onRegionChangeComplete={handleRegionChange}
       >
         {events.map((event, index) => (
           <Marker
@@ -126,7 +164,7 @@ export default function HomeScreen() {
         onRequestClose={toggleCreateEventModal}
         transparent={false}
       >
-        <FormScreen toggleCreateEventModal={toggleCreateEventModal}/>
+        <FormScreen toggleCreateEventModal={toggleCreateEventModal} />
       </Modal>
 
       <Modal

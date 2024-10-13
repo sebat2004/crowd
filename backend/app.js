@@ -152,18 +152,18 @@ app.get("/events", async (req, res) => {
       const latitude = parseFloat(req.query.latitude);
       const longitude = parseFloat(req.query.longitude);
       const maxDistance = parseInt(req.query.maxDistance) || 10000;
-
       const eventsNearby = await Event.find({
         location: {
           $near: {
             $geometry: {
               type: "Point",
-              coordinates: [latitude, longitude],
+              coordinates: [longitude, latitude],
             },
             $maxDistance: maxDistance,
           },
         },
       });
+      console.log(eventsNearby);
       res.json(eventsNearby);
     } else {
       const allEvents = await Event.find();
