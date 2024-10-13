@@ -7,6 +7,8 @@ import Popup from "@/components/event/Popup";
 import * as Location from "expo-location";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import EventList from "@/components/search/EventList";
+import Entypo from "@expo/vector-icons/Entypo";
+import FormScreen from "../form";
 
 import axios from 'axios';
 
@@ -18,6 +20,7 @@ export default function HomeScreen() {
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
 
   const [events, setEvents] = useState([]);
 
@@ -74,6 +77,10 @@ export default function HomeScreen() {
     setIsPopupVisible(false);
   };
 
+  const toggleCreateEventModal = () => {
+    setIsCreateEventModalVisible(!isCreateEventModalVisible);
+  }
+
   return (
     <View className="flex-1">
       <MapView
@@ -104,6 +111,23 @@ export default function HomeScreen() {
           <Text className="ml-1 text-gray-400">Search</Text>
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        className="absolute bottom-4 right-5 w-14 h-14 bg-blue-900 rounded-full justify-center items-center"
+        onPress={toggleCreateEventModal}
+        activeOpacity={1}
+      >
+        <Entypo name="plus" size={24} color="white" />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isCreateEventModalVisible}
+        animationType="slide"
+        onRequestClose={toggleCreateEventModal}
+        transparent={false}
+      >
+        <FormScreen toggleCreateEventModal={toggleCreateEventModal}/>
+      </Modal>
 
       <Modal
         visible={isModalVisible}
