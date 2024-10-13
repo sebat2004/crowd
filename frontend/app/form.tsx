@@ -111,63 +111,6 @@ export default function FormScreen() {
       .catch((error) => console.error("Error:", error));
   };
 
-  //so cursed but the native wind shit has not been working. 
-  const styles = StyleSheet.create({
-    container: {
-      marginBottom: 16,
-      width: '100%',
-      alignItems: 'center',
-    },
-    containerDate: {
-      marginBottom: 16,
-      width: '100%',
-      minWidth:'70%', 
-      paddingRight:20,
-      alignItems: 'left', //why is this launching an error but also working? 
-    },
-    title: {
-      fontSize: 24,
-      marginBottom: 8,
-    },
-    dateTimeContainer: {
-      flexDirection: 'row',
-      marginBottom: 16,
-      justifyContent: 'center',
-    },
-    input: {
-      height: 50,
-      fontSize: 24,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ccc',
-      minWidth: '70%',
-    },
-    multilineInput: {
-      height: 100,
-      textAlignVertical: 'top',
-      borderBottomWidth:1,
-      minWidth:'70%',
-      paddingTop:8,
-      paddingBottom:8, 
-    },
-    buttonContainer: {
-      width: '100%',
-      alignItems: 'center',
-      marginTop: 20,
-    },
-    button: {
-      width: 100,
-      height: 40,
-      backgroundColor: '#172554',
-      borderRadius: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    buttonText: {
-      color: 'white',
-      fontSize: 16,
-    },
-  });
-
   const renderCurrentStep = () => {
     switch (step) {
       case 1:
@@ -177,18 +120,8 @@ export default function FormScreen() {
               label="Event Name?"
               value={name}
               onChangeText={setName}
-              onSubmitEditing={() => setStep(2)}
               style={styles.input}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                title="Next"
-                onPress={() => setStep(2)}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
-            </View>
           </StepContent>
         );
       case 2:
@@ -201,50 +134,33 @@ export default function FormScreen() {
               keyboardType="numeric"
               style={styles.input}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                title="Next"
-                onPress={() => setStep(3)}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
+          </StepContent>
+        );
+      case 3:
+        return (
+          <StepContent step={step}> 
+          <View style={styles.containerDate}>
+              <Text className="text-xl mb-2">Date and Time</Text>
+              <View style={styles.dateTimeContainer}>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={eventDate}
+                  mode={"date"}
+                  display="default"
+                  onChange={onChangeEventDate}
+                />
+                <DateTimePicker
+                  testID="timePicker"
+                  value={eventTime}
+                  mode={"time"}
+                  is24Hour={true}
+                  display="default"
+                  onChange={onChangeEventTime}
+                />
+              </View>
             </View>
           </StepContent>
         );
-        case 3:
-  return (
-    <StepContent step={step}> 
-    <View style={styles.containerDate}>
-        <Text style={styles.title}>Event Date and Time</Text>
-        <View style={styles.dateTimeContainer}>
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={eventDate}
-            mode={"date"}
-            display="default"
-            onChange={onChangeEventDate}
-          />
-          <DateTimePicker
-            testID="timePicker"
-            value={eventTime}
-            mode={"time"}
-            is24Hour={true}
-            display="default"
-            onChange={onChangeEventTime}
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setStep(4)}
-          >
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </StepContent>
-  );
       case 4:
         return (
           <StepContent step={step}>
@@ -252,18 +168,8 @@ export default function FormScreen() {
               label="Address"
               value={address}
               onChangeText={setAddress}
-              onSubmitEditing={() => setStep(5)}
               style={styles.input}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                title="Next"
-                onPress={() => setStep(5)}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
-            </View>
           </StepContent>
         );
       case 5:
@@ -276,15 +182,6 @@ export default function FormScreen() {
               multiline={true}
               style={styles.multilineInput}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                title="Next"
-                onPress={() => setStep(6)}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
-            </View>
           </StepContent>
         );
       case 6:
@@ -297,11 +194,6 @@ export default function FormScreen() {
               keyboardType="numeric"
               style={styles.input}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} title="Next" onPress={() => setStep(7)} >
-                <Text style={styles.buttonText}>Next</Text>
-              </TouchableOpacity>
-            </View>
           </StepContent>
         );
       case 7:
@@ -320,33 +212,95 @@ export default function FormScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1">
-      <View className="flex-row mb-4 justify-between items-center">
-        <Ionicons
-          name="arrow-back"
-          size={24}
-          color="black"
-          onPress={() => setStep(Math.max(1, step - 1))}
-        />
-        <Ionicons
-          name={step === 7 ? "checkbox" : "checkbox-outline"}
-          size={24}
-          color="black"
-        />
-      </View>
-      <View className="flex justify-center items-center pb-10">
-        <Text className="text-xl mb-4">Welcome! Create your event here!</Text>
-      </View>
-      <ScrollView
-        contentContainerStyle={{
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <View className="flex items-center justify-center">
+    <SafeAreaView className="flex p-20 h-full justify-center items-center w-full">
+      <View className="flex justify-center w-full h-80 items-center">
+        <View className="flex justify-center w-full items-center mb-10 bg-transparent">
+          <Text className="text-2xl">Welcome! Create your event here!</Text>
+        </View>
+        <View className="flex items-center justify-center h-40">
           {renderCurrentStep()}
         </View>
-      </ScrollView>
+        <View className="flex-row justify-center items-center w-1/2">
+          {step > 1 && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setStep(step - 1)}
+              >
+                <Text style={styles.buttonText}>Back</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {step < 7 && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setStep(step + 1)}
+              >
+                <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
+
+//so cursed but the native wind shit has not been working. 
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  containerDate: {
+    marginBottom: 16,
+    width: '100%',
+    minWidth:'70%', 
+    paddingRight:20,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  dateTimeContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    justifyContent: 'center',
+  },
+  input: {
+    height: 50,
+    fontSize: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    minWidth: '70%',
+  },
+  multilineInput: {
+    height: 100,
+    textAlignVertical: 'top',
+    borderBottomWidth:1,
+    minWidth:'70%',
+    paddingTop:8,
+    paddingBottom:8, 
+  },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  button: {
+    width: 100,
+    height: 40,
+    backgroundColor: '#172554',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+});
