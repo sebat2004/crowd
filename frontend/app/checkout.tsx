@@ -11,15 +11,15 @@ export default function CheckoutScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const { getCredentials } = useAuth0();
-  
+  console.log(getCredentials);
 
   const fetchPaymentSheetParams = async (cost) => {
     const credentials = await getCredentials();
     const response = await fetch(`http://localhost:3000/payment-sheet`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${credentials.accessToken}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${credentials.accessToken}`,
       },
       body: JSON.stringify({
         cost: cost
@@ -47,12 +47,12 @@ export default function CheckoutScreen() {
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent,
       applePay: {
-        merchantCountryCode: 'US',
+        merchantCountryCode: "US",
       },
       allowsDelayedPaymentMethods: false,
       defaultBillingDetails: {
-        name: 'Jane Doe',
-      }
+        name: "Jane Doe",
+      },
     });
     if (!error) {
       setLoading(true);
@@ -64,7 +64,10 @@ export default function CheckoutScreen() {
     if (error) {
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
-      Alert.alert('Success', 'Your order is confirmed! Check your email for your ticket.');
+      Alert.alert(
+        "Success",
+        "Your order is confirmed! Check your email for your ticket."
+      );
     }
   };
 
