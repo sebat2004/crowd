@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
+import EventList from '../components/EventList';
 
 export default function SearchPage() {
   const [text, setText] = useState('');
@@ -18,6 +19,9 @@ export default function SearchPage() {
           placeholder="Search"
           autoFocus
         />
+      </View>
+      <View className="flex-1">
+        <EventList searchText={text} />
       </View>
     </View>
   );
