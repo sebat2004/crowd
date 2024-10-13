@@ -72,8 +72,8 @@ export default function ProfileScreen() {
               </>
             )}
             <View className="flex">
-              <Text>Upcoming Events</Text>
-              <EventList />
+              {/* <Text>Upcoming Events</Text> */}
+              {/* <EventList /> */}
             </View>
           </View>
           <Modal
@@ -114,34 +114,34 @@ export default function ProfileScreen() {
   );
 }
 
-function EventList() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const [error, setError] = useState(null);
-  const { user } = useAuth0();
+// function EventList() {
+//   const [events, setEvents] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searchText, setSearchText] = useState("");
+//   const [error, setError] = useState(null);
+//   const { user } = useAuth0();
 
-  useEffect(() => {
-    if (!user) return;
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch(
-          `http://localhost:3000/${user!.sub}/events`
-        ).then((res) => res.json());
-        console.log(res);
-        console.log(user.sub);
-        setEvents(res);
-      } catch (err) {
-        console.error("Error fetching events: ", err);
-        setError("Failed to fetch events. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvents();
-  }, []);
+//   useEffect(() => {
+//     if (!user) return;
+//     const fetchEvents = async () => {
+//       try {
+//         setLoading(true);
+//         setError(null);
+//         const res = await fetch(
+//           `http://localhost:3000/${user!.sub}/events`
+//         ).then((res) => res.json());
+//         console.log(res);
+//         console.log(user.sub);
+//         setEvents(res);
+//       } catch (err) {
+//         console.error("Error fetching events: ", err);
+//         setError("Failed to fetch events. Please try again later.");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchEvents();
+//   }, []);
 
   const renderEvent = ({ item }) => (
     <View className="p-4 border-b border-gray-200">
@@ -165,51 +165,51 @@ function EventList() {
     </View>
   );
 
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <Text className="text-red-500">{error}</Text>
-      </View>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center">
+  //       <Text className="text-red-500">{error}</Text>
+  //     </View>
+  //   );
+  // }
 
-  return (
-    <SafeAreaView className="flex-1 bg-white pt-1">
-      <View className="flex-1 bg-white items-center">
-        <View className="flex-row w-full p-4">
-          <TouchableOpacity>
-            <Entypo name="chevron-down" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View className="relative w-10/12 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
-          <Ionicons name="search" size={18} color="black" />
-          <TextInput
-            className="ml-1 text-gray-400"
-            onChangeText={setSearchText}
-            value={searchText}
-            placeholder="Search"
-          />
-        </View>
-        {events?.length > 0 ? (
-          <FlatList
-            data={events}
-            renderItem={renderEvent}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        ) : (
-          <View className="flex-1 justify-center items-center">
-            <Text>No events found.</Text>
-          </View>
-        )}
-      </View>
-    </SafeAreaView>
-  );
-}
+  // return (
+  //   <SafeAreaView className="flex-1 bg-white pt-1">
+  //     <View className="flex-1 bg-white items-center">
+  //       <View className="flex-row w-full p-4">
+  //         <TouchableOpacity>
+  //           <Entypo name="chevron-down" size={24} color="black" />
+  //         </TouchableOpacity>
+  //       </View>
+  //       <View className="relative w-10/12 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
+  //         <Ionicons name="search" size={18} color="black" />
+  //         <TextInput
+  //           className="ml-1 text-gray-400"
+  //           onChangeText={setSearchText}
+  //           value={searchText}
+  //           placeholder="Search"
+  //         />
+  //       </View>
+  //       {events?.length > 0 ? (
+  //         <FlatList
+  //           data={events}
+  //           renderItem={renderEvent}
+  //           keyExtractor={(item, index) => index.toString()}
+  //         />
+  //       ) : (
+  //         <View className="flex-1 justify-center items-center">
+  //           <Text>No events found.</Text>
+  //         </View>
+  //       )}
+  //     </View>
+  //   </SafeAreaView>
+  // );
+// }
