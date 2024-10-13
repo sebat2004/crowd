@@ -1,4 +1,6 @@
 import express from "express";
+import { expressjwt } from 'express-jwt'
+import jwks from 'jwks-rsa';
 import mongoose from "mongoose";
 import Stripe from "stripe";
 import sgMail from "@sendgrid/mail";
@@ -15,12 +17,22 @@ import { Upload } from "@aws-sdk/lib-storage";
 
 dotenv.config();
 const app = express();
-app.use(express.json());
 const stripe = new Stripe(process.env.STRIPE_SK);
-
 sgMail.setApiKey(process.env.SENDGRID_KEY);
-// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI;
+
+const jwtCheck = expressjwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/api/v2/',
+  issuer: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/',
+  algorithms: ['RS256']
+});
+
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
@@ -127,6 +139,10 @@ app.post(
     res.send();
   }
 );
+
+app.use('/payment-sheets', jwtCheck);
+app.use('/verify-ticket', jwtCheck);
+app.use(express.json());
 
 // CRUD routes
 app.get("/events", async (req, res) => {
