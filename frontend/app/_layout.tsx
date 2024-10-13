@@ -1,3 +1,4 @@
+import React from 'react';
 import { Auth0Provider } from 'react-native-auth0';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -31,7 +32,7 @@ export default function RootLayout() {
   return (
     <Auth0Provider domain={"dev-jr03u2n4ktx2p1ud.us.auth0.com"} clientId={"W2lv1O8NypUE6tlpJ5S5XZLAcmwRpiTj"}>
       <StripeProvider
-        publishableKey=""
+        publishableKey="pk_live_51Q9GX8FDMnNxWG99uDKvCi1vntoMoomfk6eLD247QIv0xxyrIercSAdrZZTeqZmR3n6ZhloB5N6edXMLMsX9NJI600oXbzflFN"
         merchantIdentifier="merchant.com.crowd"
       >
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
