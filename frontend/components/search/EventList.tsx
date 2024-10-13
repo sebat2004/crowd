@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, TextInput, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -9,7 +8,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 export default function EventList({ setMapRegion, toggleModal }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [text, setText] = useState('');
+  const [searchText, setSearchText] = useState('');
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -27,7 +26,15 @@ export default function EventList({ setMapRegion, toggleModal }) {
       }
     }
     fetchEvents();
-  }, [text]);
+  }, []);
+
+  const filteredEvents = useMemo(() => {
+    if (!searchText) return events;
+    return events.filter(event => 
+      event.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      event.address.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [events, searchText]);
 
   const travelToLocation = (location) => {
     setMapRegion({
@@ -54,7 +61,6 @@ export default function EventList({ setMapRegion, toggleModal }) {
           </View>
           <View className="w-1/2 p-2">
             <View className="bg-gray-200 rounded-lg w-full h-full">
-
             </View>
           </View>
         </View>
@@ -82,21 +88,22 @@ export default function EventList({ setMapRegion, toggleModal }) {
     <SafeAreaView className="flex-1 bg-white pt-1">
       <View className="flex-1 bg-white items-center">
         <View className="flex-row w-full p-4">
-        <TouchableOpacity onPress={toggleModal} >
-          <Entypo name="chevron-down" size={24} color="black" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={toggleModal} >
+            <Entypo name="chevron-down" size={24} color="black" />
+          </TouchableOpacity>
         </View>
         <View className="relative w-10/12 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
           <Ionicons name="search" size={18} color="black" />
-          <TextInput className="ml-1 text-gray-400"
-            onChangeText={text => setText(text)}
-            value={text}
+          <TextInput 
+            className="ml-1 text-gray-400"
+            onChangeText={setSearchText}
+            value={searchText}
             placeholder="Search"
           />
         </View>
-        {events.length > 0 ? (
+        {filteredEvents.length > 0 ? (
           <FlatList
-            data={events}
+            data={filteredEvents}
             renderItem={renderEvent}
             keyExtractor={(item, index) => index.toString()}
           />
