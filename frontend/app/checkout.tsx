@@ -1,20 +1,22 @@
 import React from 'react';
 import { View, Button, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
+import { useAuth0 } from 'react-native-auth0';
 import { useStripe } from '@stripe/stripe-react-native';
 
 export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
-  const [qrCode, setQrCode] = useState(null);
-
-  const API_URL = "http://localhost:3000"
+  const { getCredentials } = useAuth0();
+  
 
   const fetchPaymentSheetParams = async () => {
-    const response = await fetch(`${API_URL}/payment-sheet`, {
+    const credentials = await getCredentials();
+    const response = await fetch(`http://localhost:3000/payment-sheet`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${credentials.accessToken}`
       },
       body: JSON.stringify({
         customerId: null, // Send null for guest checkout
@@ -51,29 +53,6 @@ export default function CheckoutScreen() {
     });
     if (!error) {
       setLoading(true);
-    }
-  };
-
-  const generateQRCode = async paymentIntentId => {
-    try {
-      const response = await fetch(`${API_URL}/create-ticket`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ paymentIntentId }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setQrCode(data.qrCode);
-      } else {
-        Alert.alert('Error', 'Failed to generate QR code');
-      }
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-      Alert.alert('Error', 'Failed to generate QR code');
     }
   };
 
