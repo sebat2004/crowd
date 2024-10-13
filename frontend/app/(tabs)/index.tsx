@@ -20,8 +20,7 @@ export default function HomeScreen() {
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateEventModalVisible, setIsCreateEventModalVisible] =
-    useState(false);
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
   const [events, setEvents] = useState([]);
 
   function measure(lat1, lon1, lat2, lon2) {
