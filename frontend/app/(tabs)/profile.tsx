@@ -13,7 +13,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View className="w-full h-[85%] flex items-center justify-between mt-24 p-3">
+    <View className="w-full h-[85%] flex items-center justify-center mt-24 p-3">
       {user ? (
         <>
           <View className="flex gap-10">
@@ -53,7 +53,6 @@ export default function ProfileScreen() {
         </>
       ):(
         <>
-          <Text>Not logged in</Text>
           <LoginButton></LoginButton>
         </>
       )}
