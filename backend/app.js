@@ -1,6 +1,6 @@
 import express from "express";
-import { expressjwt } from 'express-jwt'
-import jwks from 'jwks-rsa';
+import { expressjwt } from "express-jwt";
+import jwks from "jwks-rsa";
 import mongoose from "mongoose";
 import Stripe from "stripe";
 import sgMail from "@sendgrid/mail";
@@ -37,11 +37,11 @@ const jwtCheck = expressjwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/.well-known/jwks.json'
+    jwksUri: "https://dev-jr03u2n4ktx2p1ud.us.auth0.com/.well-known/jwks.json",
   }),
-  audience: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/api/v2/',
-  issuer: 'https://dev-jr03u2n4ktx2p1ud.us.auth0.com/',
-  algorithms: ['RS256']
+  audience: "https://dev-jr03u2n4ktx2p1ud.us.auth0.com/api/v2/",
+  issuer: "https://dev-jr03u2n4ktx2p1ud.us.auth0.com/",
+  algorithms: ["RS256"],
 });
 
 mongoose
@@ -75,7 +75,16 @@ const eventSchema = new mongoose.Schema({
   capacity: Number,
   admission_cost: Number,
   imageURL: String,
+  ownerId: String,
+  usersAttending: [String],
   location: pointSchema,
+});
+
+// Event schema and model
+const userSchema = new mongoose.Schema({
+  auth0Id: String,
+  ownedEvents: [eventSchema],
+  eventsAttending: [eventSchema],
 });
 
 const ticketSchema = new mongoose.Schema({
@@ -89,6 +98,8 @@ const Ticket = mongoose.model("Ticket", ticketSchema);
 eventSchema.index({ location: "2dsphere" });
 
 const Event = mongoose.model("Event", eventSchema);
+
+const User = mongoose.model("User", userSchema);
 
 // Express app setup
 const endpointSecret = "";
@@ -205,8 +216,8 @@ app.post(
   }
 );
 
-app.use('/payment-sheets', jwtCheck);
-app.use('/verify-ticket', jwtCheck);
+app.use("/payment-sheets", jwtCheck);
+app.use("/verify-ticket", jwtCheck);
 app.use(express.json());
 
 // CRUD routes
@@ -249,6 +260,19 @@ app.get("/events/:id", async (req, res) => {
   }
 });
 
+app.get("/:userId/events", async (req, res) => {
+  console.log("userId", req.params);
+  try {
+    const user = await User.find({ auth0Id: req.params.userId });
+    console.log("user", user);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log("user", user, user.ownedEvents);
+    res.json(user.ownedEvents);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.post("/events", async (req, res) => {
   try {
     const {
@@ -257,12 +281,28 @@ app.post("/events", async (req, res) => {
       address,
       description,
       capacity,
-      coordinates,
       cost,
       imageUrl,
+      ownerId,
     } = req.body;
+    let { coordinates } = req.body;
 
-    console.log(req.body);
+    const formattedAddress = address.replace(/\s+/g, "+");
+
+    console.log("formattedAddress", formattedAddress);
+    let locationData;
+    if (!coordinates) {
+      locationData = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${formattedAddress}&key=${process.env.GOOGLE_API_KEY}`,
+        {
+          method: "GET",
+        }
+      ).then((res) => res.json());
+
+      console.log(locationData.results);
+      const location = locationData.results[0].geometry.location;
+      coordinates = [location.lng, location.lat];
+    }
 
     const event = new Event({
       name,
@@ -276,9 +316,22 @@ app.post("/events", async (req, res) => {
       },
       admission_cost: cost,
       imageURL: imageUrl,
+      ownerId: ownerId,
     });
 
     const savedEvent = await event.save();
+
+    const seenUser = await User.findOne({ auth0Id: ownerId });
+    console.log("seenUser", seenUser);
+    if (!seenUser) {
+      const user = new User({
+        auth0Id: ownerId,
+        ownedEvents: [event],
+        eventsAttending: [],
+      });
+      console.log("user", user);
+      await user.save();
+    }
     res.status(201).json(savedEvent);
   } catch (error) {
     console.error("Error creating event:", error);
@@ -314,7 +367,7 @@ app.delete("/events/:id", async (req, res) => {
 
 app.post("/payment-sheet", async (req, res) => {
   try {
-    const { cost } = req.body
+    const { cost } = req.body;
     const customer = await stripe.customers.create();
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },

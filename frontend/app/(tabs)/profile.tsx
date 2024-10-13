@@ -1,26 +1,35 @@
-import { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
+  TextInput,
   Modal,
   Pressable,
   TouchableWithoutFeedback,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Image,
 } from "react-native";
 import { LoginButton, LogoutButton } from "@/components/auth";
-import Camera from "@/components/profile/Camera"
+import Camera from "@/components/profile/Camera";
 import { useAuth0 } from "react-native-auth0";
 import { ProfilePicture } from "@/components/auth/ProfilePicture";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import axios from "axios";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Entypo from "@expo/vector-icons/Entypo";
 
 export default function ProfileScreen() {
   const { user } = useAuth0();
   const [cameraVisible, setCameraVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [ownedEvents, setOwnedEvents] = useState([]);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
   const toggleCamera = () => {
     setCameraVisible(!cameraVisible);
-  }
+  };
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -39,7 +48,7 @@ export default function ProfileScreen() {
               <>
                 <View className="absolute bottom-1/2 right-2">
                   <Pressable onPress={toggleCamera}>
-                    <Ionicons name="camera-outline" size={32} color="black"/>
+                    <Ionicons name="camera-outline" size={32} color="black" />
                   </Pressable>
                 </View>
                 <View className="w-full flex-row justify-start items-center">
@@ -47,7 +56,9 @@ export default function ProfileScreen() {
                     <ProfilePicture />
                   </Pressable>
                   <View>
-                    <Text className="ml-4 text-2xl line-clamp-2">Welcome back,</Text>
+                    <Text className="ml-4 text-2xl line-clamp-2">
+                      Welcome back,
+                    </Text>
                     <Text className="ml-4 text-2xl font-bold line-clamp-2">
                       {user.name?.split(" ")[0]}!
                     </Text>
@@ -62,11 +73,12 @@ export default function ProfileScreen() {
             )}
             <View className="flex">
               <Text>Upcoming Events</Text>
+              <EventList />
             </View>
           </View>
           <Modal
             transparent={true}
-            visible={cameraVisible} 
+            visible={cameraVisible}
             onRequestClose={toggleCamera}
           >
             <TouchableWithoutFeedback onPress={toggleCamera}>
@@ -86,7 +98,9 @@ export default function ProfileScreen() {
             <TouchableWithoutFeedback onPress={toggleLogoutModal}>
               <View className="flex-1 justify-center items-center">
                 <View className="bg-white p-5 rounded-xl flex justify-center items-center">
-                  <Text className="text-lg mb-4">Are you sure you want to logout?</Text>
+                  <Text className="text-lg mb-4">
+                    Are you sure you want to logout?
+                  </Text>
                   <LogoutButton />
                 </View>
               </View>
@@ -97,5 +111,105 @@ export default function ProfileScreen() {
         <LoginButton />
       )}
     </View>
+  );
+}
+
+function EventList() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [error, setError] = useState(null);
+  const { user } = useAuth0();
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(
+          `http://localhost:3000/${user!.sub}/events`
+        ).then((res) => res.json());
+        console.log(res);
+        console.log(user.sub);
+        setEvents(res);
+      } catch (err) {
+        console.error("Error fetching events: ", err);
+        setError("Failed to fetch events. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const renderEvent = ({ item }) => (
+    <View className="p-4 border-b border-gray-200">
+      <View className="flex-row justify-between h-24">
+        <View className="w-1/2">
+          <View className="flex-col p-2">
+            <Text className="text-lg font-semibold">{item.name}</Text>
+          </View>
+          <View className="flex-row items-center p-1">
+            <Ionicons name="location-outline" size={24} color="black" />
+            <Text className="text-md font-light">{item.address}</Text>
+          </View>
+        </View>
+        <View className="w-1/2 p-2">
+          <Image
+            source={{ uri: item.image }}
+            className="w-full h-full rounded-lg"
+          />
+        </View>
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-red-500">{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-white pt-1">
+      <View className="flex-1 bg-white items-center">
+        <View className="flex-row w-full p-4">
+          <TouchableOpacity>
+            <Entypo name="chevron-down" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+        <View className="relative w-10/12 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
+          <Ionicons name="search" size={18} color="black" />
+          <TextInput
+            className="ml-1 text-gray-400"
+            onChangeText={setSearchText}
+            value={searchText}
+            placeholder="Search"
+          />
+        </View>
+        {events?.length > 0 ? (
+          <FlatList
+            data={events}
+            renderItem={renderEvent}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <Text>No events found.</Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }

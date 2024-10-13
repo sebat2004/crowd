@@ -19,7 +19,8 @@ import Animated, {
 } from "react-native-reanimated";
 import Entypo from "@expo/vector-icons/Entypo";
 import * as ImagePicker from "expo-image-picker";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { useAuth0 } from "react-native-auth0";
 
 const createFormData = (uri) => {
   const fileName = uri.split("/").pop();
@@ -135,6 +136,7 @@ const StepContent = ({ children, step }) => {
 
 export default function FormScreen({ toggleCreateEventModal }) {
   const [step, setStep] = useState<number>(1);
+  const { user } = useAuth0();
 
   //for datepicker component
   const [mode, setMode] = useState<string>("date");
@@ -145,7 +147,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
   const [address, setAddress] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [capacity, setCapacity] = useState<string>("");
-  const [coordinates, setCoordinates] = useState<Array<BigInt>>([1, 1]);
+  const [coordinates, setCoordinates] = useState<Array<BigInt> | null>(null);
   const [cost, setCost] = useState<string>("");
   const [eventDate, setEventDate] = useState<Date>(new Date());
   const [eventTime, setEventTime] = useState<Date>(new Date());
@@ -180,6 +182,7 @@ export default function FormScreen({ toggleCreateEventModal }) {
             coordinates,
             cost: parseInt(cost, 10),
             imageUrl,
+            ownerId: user!.sub,
           };
 
           console.log("Submitting form data:", formData);
@@ -314,6 +317,14 @@ export default function FormScreen({ toggleCreateEventModal }) {
         return null;
     }
   };
+
+  if (!user) {
+    return (
+      <View className="flex items-center justify-center h-full">
+        <Text>Please login to create an event</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1">
