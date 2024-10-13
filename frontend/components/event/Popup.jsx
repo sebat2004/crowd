@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, Button } from 'react-native';
 import { BlurView } from 'expo-blur';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
@@ -15,7 +15,7 @@ export default Popup = ({ visible, onClose, marker }) => {
 			visible={visible}
 			onRequestClose={onClose}
     >
-			<BlurView className="flex-1 w-full h-full justify-center items-center" intensity={10} >
+			<BlurView className="flex-1 w-full justify-center items-center" intensity={10} >
 				<View className="flex-1 justify-center items-center w-10/12 h-full">
 					<View
 						className="bg-white p-5 w-full h-3/5 rounded-3xl shadow-lg flex flex-col justify-start"
@@ -27,23 +27,28 @@ export default Popup = ({ visible, onClose, marker }) => {
 								<AntDesign name="close" size={24} color="black" />
 							</TouchableOpacity>
 						</View>
-						<View className="flex w-full h-1/3 mb-5">
+						<View className="flex-auto w-full h-1/3 mb-5">
 							<View className="w-full h-full bg-slate-400 rounded-xl">
 
 							</View>
 						</View>
-						<Text className="text-3xl font-semibold">{marker.title}</Text>
-						<Text>{marker.description}</Text>
-						<Text>{marker.address}</Text>
-						<Text>{marker.time}</Text>
-						<Link href={{
-							pathname: "/checkout",
-							params: { markerId: marker.id }
-						}} asChild>
-							<TouchableOpacity onPress={onClose}>
-								<Text>Proceed to Checkout</Text>
-							</TouchableOpacity>
-						</Link>
+						<View className="flex-auto w-full justify-between">
+							<View className="flex">
+								<Text className="text-3xl font-semibold mb-0.5">{marker.name}</Text>
+								<Text className="text-md font-light italic mb-2">{marker.address}</Text>
+								<Text className="text-lg font-normal leading-5">{marker.description}</Text>
+							</View>
+							<View className="flex">
+								<Link href={{
+									pathname: "/checkout",
+									params: { eventId: marker.id }
+								}} asChild>
+									<TouchableOpacity onPress={onClose} className="bg-blue-900 p-3 rounded">
+										<Text className="text-white text-center">Proceed to Checkout</Text>
+									</TouchableOpacity>
+								</Link>
+							</View>
+						</View>
 					</View>
 				</View>
 			</BlurView>
