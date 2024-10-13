@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.crowd"
+      "bundleIdentifier": "com.anonymous.crowd",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to capture photos and videos.",
+        "NSPhotoLibraryUsageDescription": "The app accesses your photos to let you share them with your friends."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -48,10 +52,23 @@
           "merchantIdentifier": "merchant.com.crowd",
           "enableGooglePay": false
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "jsEngine": "jsc"
   }
 }
