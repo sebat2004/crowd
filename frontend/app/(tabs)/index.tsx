@@ -6,8 +6,7 @@ import Popup from "@/components/event/Popup";
 
 import * as Location from "expo-location";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
-import EventList from "../EventList";
+import EventList from "@/components/search/EventList";
 import Entypo from "@expo/vector-icons/Entypo";
 import FormScreen from "../form";
 
@@ -15,17 +14,13 @@ import axios from "axios";
 
 export default function HomeScreen() {
   const [location, setLocation] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [mapRef, setMapRef] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [mapRef, setMapRef] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
-
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateEventModalVisible, setIsCreateEventModalVisible] =
-    useState(false);
-
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
   const [events, setEvents] = useState([]);
 
   function measure(lat1, lon1, lat2, lon2) {
@@ -66,25 +61,21 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    (async () => {
       try {
         const res = await axios.get(`http://localhost:3000/events`);
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events: ", err);
       }
-    };
-    fetchEvents();
-  }, []);
+    })();
 
-  useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
         return;
       }
-
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
     })();
@@ -108,16 +99,6 @@ export default function HomeScreen() {
   if (!mapRegion) {
     return <Text>Loading...</Text>;
   }
-  // console.log(location);
-  const markersTest = [
-    {
-      latlng: { latitude: 47.655334, longitude: -122.30352 },
-      title: "Example Party",
-      description: "Best party on the block",
-      address: "123 N st",
-      time: "22:00",
-    },
-  ];
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -147,20 +128,7 @@ export default function HomeScreen() {
         {events.map((event, index) => (
           <Marker
             key={index}
-            title={
-              event.name.length > 20
-                ? `${event.name.substring(0, 20)}...`
-                : event.name
-            }
-            description={
-              event.description.length > 30
-                ? `${event.description.substring(0, 30)}...`
-                : event.description
-            }
-            coordinate={{
-              latitude: event.location.coordinates[1],
-              longitude: event.location.coordinates[0],
-            }}
+            coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
             onPress={() => openPopup(event)}
           />
         ))}
