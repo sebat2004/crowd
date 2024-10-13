@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { View, Text, Modal, TouchableOpacity, Button } from 'react-native';
 import { BlurView } from 'expo-blur';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Foundation from '@expo/vector-icons/Foundation';
 
 export default Popup = ({ visible, onClose, marker }) => {
 	if (!marker) {
@@ -43,8 +44,9 @@ export default Popup = ({ visible, onClose, marker }) => {
 									pathname: "/checkout",
 									params: { eventId: marker.id }
 								}} asChild>
-									<TouchableOpacity onPress={onClose} className="bg-blue-900 p-3 rounded">
-										<Text className="text-white text-center">Proceed to Checkout</Text>
+									<TouchableOpacity onPress={onClose} className="bg-blue-900 p-3 rounded flex flex-row justify-center items-center">
+										<Foundation name="clipboard-pencil" size={24} color="white" className="p-0 m-0"/>
+										<Text className="text-white text-center pl-2 text-lg">Register Now</Text>
 									</TouchableOpacity>
 								</Link>
 							</View>

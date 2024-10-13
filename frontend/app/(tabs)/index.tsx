@@ -91,39 +91,41 @@ export default function HomeScreen() {
         {events.map((event, index) => (
           <Marker
             key={index}
+            title={event.name}
+            description={event.description}
             coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
             onPress={() => openPopup(event)}
           />
         ))}
-        </MapView>
+      </MapView>
 
-        <Popup
-          visible={isPopupVisible}
-          onClose={closePopup}
-          marker={selectedMarker}
-        />
-        <TouchableOpacity 
-          className="absolute top-[10%] w-full justify-center items-center"
-          onPress={toggleModal}
-          activeOpacity={1}
-        >
-          <View className="relative w-4/5 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
-            <Ionicons name="search" size={18} color="black" />
-            <Text className="ml-1 text-gray-400">Search</Text>
-          </View>
-        </TouchableOpacity>
+      <Popup
+        visible={isPopupVisible}
+        onClose={closePopup}
+        marker={selectedMarker}
+      />
+      <TouchableOpacity 
+        className="absolute top-[10%] w-full justify-center items-center"
+        onPress={toggleModal}
+        activeOpacity={1}
+      >
+        <View className="relative w-4/5 flex-row h-[40px] justify-start items-center bg-white rounded-full border-[#D9D9D9] border-2 drop-shadow-md p-2.5">
+          <Ionicons name="search" size={18} color="black" />
+          <Text className="ml-1 text-gray-400">Search</Text>
+        </View>
+      </TouchableOpacity>
 
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          onRequestClose={toggleModal}
-          transparent={false}
-        >
-          <View className="flex-1 bg-white">
-            <Button title="" onPress={toggleModal} />
-            <EventList setMapRegion={setMapRegion} toggleModal={toggleModal} />
-          </View>
-        </Modal>
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={toggleModal}
+        transparent={false}
+      >
+        <View className="flex-1 bg-white">
+          <Button title="" onPress={toggleModal} />
+          <EventList setMapRegion={setMapRegion} toggleModal={toggleModal} />
+        </View>
+      </Modal>
     </View>
   );
 }
