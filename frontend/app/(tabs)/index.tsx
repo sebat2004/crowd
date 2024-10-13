@@ -11,20 +11,59 @@ import EventList from "../EventList";
 import Entypo from "@expo/vector-icons/Entypo";
 import FormScreen from "../form";
 
-import axios from 'axios';
+import axios from "axios";
 
 export default function HomeScreen() {
   const [location, setLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [mapRef, setMapRef] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
 
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] =
+    useState(false);
 
   const [events, setEvents] = useState([]);
+
+  function measure(lat1, lon1, lat2, lon2) {
+    // generally used geo measurement function
+    var R = 6378.137; // Radius of earth in KM
+    var dLat = (lat2 * Math.PI) / 180 - (lat1 * Math.PI) / 180;
+    var dLon = (lon2 * Math.PI) / 180 - (lon1 * Math.PI) / 180;
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d * 1000; // meters
+  }
+
+  const handleRegionChange = async (region, gesture) => {
+    const test = await mapRef.getMapBoundaries();
+    const maxDistance = Math.min(
+      measure(
+        test.southWest.latitude,
+        test.southWest.longitude,
+        test.northEast.latitude,
+        test.northEast.longitude
+      ),
+      6000
+    );
+    console.log(maxDistance);
+    const url = `http://localhost:3000/events?latitude=${region.latitude}&longitude=${region.longitude}&maxDistance=${maxDistance}`;
+    try {
+      const res = await axios.get(url);
+      setEvents(res.data);
+    } catch (err) {
+      console.error("Error fetching events: ", err);
+    }
+  };
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -32,12 +71,11 @@ export default function HomeScreen() {
         const res = await axios.get(`http://localhost:3000/events`);
         setEvents(res.data);
       } catch (err) {
-        console.error('Error fetching events: ', err);
+        console.error("Error fetching events: ", err);
       }
-    }
+    };
     fetchEvents();
   }, []);
-  
 
   useEffect(() => {
     (async () => {
@@ -71,7 +109,7 @@ export default function HomeScreen() {
     return <Text>Loading...</Text>;
   }
   // console.log(location);
-  const markersTest = [ 
+  const markersTest = [
     {
       latlng: { latitude: 47.655334, longitude: -122.30352 },
       title: "Example Party",
@@ -96,20 +134,33 @@ export default function HomeScreen() {
 
   const toggleCreateEventModal = () => {
     setIsCreateEventModalVisible(!isCreateEventModalVisible);
-  }
+  };
 
   return (
     <View className="flex-1">
       <MapView
+        ref={(ref) => setMapRef(ref)}
         className="w-full h-full justify-center items-center"
         region={mapRegion}
+        onRegionChangeComplete={handleRegionChange}
       >
         {events.map((event, index) => (
           <Marker
             key={index}
-            title={event.name.length > 20 ? `${event.name.substring(0, 20)}...` : event.name}
-            description={event.description.length > 30 ? `${event.description.substring(0, 30)}...` : event.description}
-            coordinate={{ latitude: event.location.coordinates[1], longitude: event.location.coordinates[0] }}
+            title={
+              event.name.length > 20
+                ? `${event.name.substring(0, 20)}...`
+                : event.name
+            }
+            description={
+              event.description.length > 30
+                ? `${event.description.substring(0, 30)}...`
+                : event.description
+            }
+            coordinate={{
+              latitude: event.location.coordinates[1],
+              longitude: event.location.coordinates[0],
+            }}
             onPress={() => openPopup(event)}
           />
         ))}
@@ -145,7 +196,7 @@ export default function HomeScreen() {
         onRequestClose={toggleCreateEventModal}
         transparent={false}
       >
-        <FormScreen toggleCreateEventModal={toggleCreateEventModal}/>
+        <FormScreen toggleCreateEventModal={toggleCreateEventModal} />
       </Modal>
 
       <Modal
