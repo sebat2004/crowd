@@ -17,7 +17,18 @@ import { Upload } from "@aws-sdk/lib-storage";
 
 dotenv.config();
 const app = express();
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 const stripe = new Stripe(process.env.STRIPE_SK);
+
+const imageSchema = new mongoose.Schema({
+  name: {type: String, required: true, unique: true},
+  data: {type: Buffer, required: true},
+  contentType: {type: String, required: true},
+});
+
+const Image = mongoose.model('Image', imageSchema);
+
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -81,6 +92,57 @@ const Event = mongoose.model("Event", eventSchema);
 
 // Express app setup
 const endpointSecret = "";
+
+app.post("/images", upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const parallelUploads3 = new Upload({
+      client: new S3Client({}),
+      params: {
+        Bucket: configuration.Bucket,
+        Key: `${Date.now()}-${req.file.originalname}`,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      },
+      queueSize: 4,
+      partSize: 1024 * 1024 * 5,
+      leavePartsOnError: false,
+    });
+
+    await parallelUploads3.done();
+
+    const imageUrl = `https://${configuration.Bucket}.s3.amazonaws.com/${parallelUploads3.params.Key}`;
+    res.status(200).json({ imageName: imageUrl });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).json({ message: "Error uploading image" });
+  }
+});
+
+app.get('/images/:name', async (req, res) => {
+  const {imagename} = req.params;
+  const image = await Image.findOne({name});
+  if (!image) {
+    return res.status(404).json({success: false, message: 'Image not found.'});
+  }
+  res.set('Content-Type', image.contentType);
+  res.send(image.data);
+});
+
+const createFormData = (uri) => {
+  const fileName = uri.split('/').pop();
+  const fileType = fileName.split('.').pop();
+  const formData = new FormData();
+  formData.append('image', {
+    name: fileName,
+    uri,
+    type: `image/${fileType}`,
+  });
+  return formData;
+};
 
 app.post(
   "/webhook",
@@ -184,49 +246,37 @@ app.get("/events/:id", async (req, res) => {
   }
 });
 
-app.post("/events", upload.any(), async (req, res) => {
-  const { headers, files } = req;
-  console.log(headers, files);
+app.post("/events", async (req, res) => {
   try {
-    const parallelUploads3 = new Upload({
-      client: new S3({}) || new S3Client({}),
-      params: {
-        Bucket: configuration.Bucket,
-        Key: configuration.Key,
-        Body: files[0].buffer,
+    const {
+      name,
+      event_date,
+      address,
+      description,
+      capacity,
+      coordinates,
+      cost,
+      imageUrl,
+    } = req.body;
+
+    const event = new Event({
+      name,
+      event_date: new Date(event_date),
+      address,
+      description,
+      capacity,
+      location: {
+        type: "Point",
+        coordinates,
       },
-      queueSize: 4,
-      partSize: 1024 * 1024 * 25, // 25MB
-      leavePartsOnError: false,
+      admission_cost: cost,
+      imageURL: imageUrl,
     });
 
-    parallelUploads3.on("httpUploadProgress", (progress) => {
-      console.log(progress);
-    });
-
-    await parallelUploads3.done();
-  } catch (e) {
-    console.log(e);
-    res.status(500).send("Error uploading file");
-  }
-  const imageURL = `https://crowd-image-bucket.s3.us-west-2.amazonaws.com/${configuration.Key}`;
-  const body = {
-    ...req.body,
-    event_date: new Date(req.body.event_date),
-    location: {
-      type: "Point",
-      coordinates: req.body.coordinates,
-    },
-    imageURL,
-  };
-
-  const event = new Event(body);
-
-  try {
     const savedEvent = await event.save();
-
     res.status(201).json(savedEvent);
   } catch (error) {
+    console.error("Error creating event:", error);
     res.status(400).json({ message: error.message });
   }
 });
