@@ -36,6 +36,7 @@ const eventSchema = new mongoose.Schema({
   description: String,
   attendees: Number,
   capacity: Number,
+  admission_cost: Number,
   location: pointSchema,
 });
 
@@ -130,6 +131,11 @@ app.delete("/events/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+});
+
+// 404 route
+app.use((req, res) => {
+  res.status(404).json({ message: "Not found" });
 });
 
 // Start the server

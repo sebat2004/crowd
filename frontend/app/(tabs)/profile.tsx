@@ -19,11 +19,19 @@ export default function ProfileScreen() {
             <ProfilePicture />
           </View>
         )}
-        <View className="bg-gray-200 flex-row flex-wrap justify-center gap-x-4">
-          <Text className="text-lg text-center">Total Parties: 20</Text>
-          <Text className="text-lg text-center">
-            Username: {user?.nickname}
-          </Text>
+        <View className="flex-row flex-wrap justify-evenly">
+          <View className="flex rounded-lg p-3 bg-gray-200 gap-y-1">
+            <Text className="text-lg text-center">Events Attended</Text>
+            <Text className="text-2xl font-bold text-left">0</Text>
+          </View>
+          <View className="flex rounded-lg p-3 bg-gray-200 gap-y-1">
+            <Text className="text-lg text-center">Events Hosted</Text>
+            <Text className="text-2xl font-bold text-left">0</Text>
+          </View>
+        </View>
+        <Text className="text-2xl font-semibold text-left">Past Events</Text>
+        <View className="flex items-start rounded-lg p-5 bg-gray-200 gap-y-1">
+          <View className="w-52 h-40 rounded-lg bg-white"></View>
         </View>
       </View>
 
