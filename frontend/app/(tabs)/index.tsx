@@ -15,14 +15,12 @@ import axios from "axios";
 export default function HomeScreen() {
   const [location, setLocation] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [mapRef, setMapRef] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
-
   const [mapRegion, setMapRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isCreateEventModalVisible, setIsCreateEventModalVisible] =
-    useState(false);
-
+  const [isCreateEventModalVisible, setIsCreateEventModalVisible] = useState(false);
   const [events, setEvents] = useState([]);
 
   function measure(lat1, lon1, lat2, lon2) {
