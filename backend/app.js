@@ -65,6 +65,7 @@ eventSchema.index({ location: "2dsphere" });
 
 const Event = mongoose.model("Event", eventSchema);
 
+<<<<<<< Updated upstream
 
 // Express app setup
 const app = express();
@@ -124,6 +125,8 @@ app.post("/webhook", express.raw({type: "application/json"}), async (req, res) =
 
 app.use(express.json());
 
+=======
+>>>>>>> Stashed changes
 app.post("/upload", async (req, res) => {
   const file = req.file;
 

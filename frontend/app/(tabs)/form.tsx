@@ -157,7 +157,7 @@ export default function FormScreen() {
     button: {
       width: 100,
       height: 40,
-      backgroundColor: 'black',
+      backgroundColor: '#172554',
       borderRadius: 8,
       justifyContent: 'center',
       alignItems: 'center',

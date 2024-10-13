@@ -44,7 +44,7 @@ export default Popup = ({ visible, onClose, marker }) => {
 									pathname: "/checkout",
 									params: { eventId: marker.id }
 								}} asChild>
-									<TouchableOpacity onPress={onClose} className="bg-green-600 p-3 rounded-lg flex flex-row justify-center items-center">
+									<TouchableOpacity onPress={onClose} className="bg-blue-950 p-3 rounded-lg flex flex-row justify-center items-center">
 										<Foundation name="clipboard-pencil" size={24} color="white" className="p-0 m-0"/>
 										<Text className="text-white text-center pl-2 text-lg">Register Now</Text>
 									</TouchableOpacity>

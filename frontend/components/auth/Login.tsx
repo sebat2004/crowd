@@ -13,7 +13,7 @@ export const LoginButton = () => {
   };
 
   return (
-    <View className="w-40 bg-green-600 rounded-md">
+    <View className="w-40 bg-blue-950 rounded-md">
       <Button color="white" onPress={onPress} title="Login" />
     </View>
   );
