@@ -300,6 +300,7 @@ app.post("/events", async (req, res) => {
       ).then((res) => res.json());
 
       console.log(locationData.results);
+  
       const location = locationData.results[0].geometry.location;
       coordinates = [location.lng, location.lat];
     }
