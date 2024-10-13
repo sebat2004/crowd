@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.crowd"
+      "bundleIdentifier": "com.anonymous.crowd",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to capture photos and videos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -47,6 +50,12 @@
         {
           "merchantIdentifier": "merchant.com.crowd",
           "enableGooglePay": false
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
         }
       ]
     ],
